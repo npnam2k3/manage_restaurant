@@ -1,4 +1,5 @@
 "use strict";
+require("dotenv").config();
 const dev = {
   app: {
     port: process.env.DEV_APP_PORT,
@@ -16,4 +17,4 @@ const dev = {
 const config = { dev };
 const env = process.env.NODE_ENV || "dev";
 
-export default config[env];
+module.exports = config[env];
