@@ -2,8 +2,9 @@ import express from "express";
 import morgan from "morgan";
 import compression from "compression";
 import helmet from "helmet";
-import "./dbs/init.mysqldb.js";
 import router from "./routers/index.js";
+const { RESPONSE_TYPE } = require("./core/constant.response.js");
+const { NotFoundError } = require("./core/error.response.js");
 
 const app = express();
 // init middleware
@@ -18,15 +19,14 @@ app.use(
 );
 
 // init db
-
+require("./dbs/init.mysqldb.js");
 // init routes
 app.use("/", router);
 
 // handle error
 // middleware
 app.use((req, res, next) => {
-  const error = new Error("Not found");
-  error.status = 404;
+  const error = new NotFoundError();
   next(error);
 });
 
@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   const statusCode = err.status || 500;
   return res.status(statusCode).json({
-    status: "error",
+    status: RESPONSE_TYPE.ERROR,
     code: statusCode,
     message: err.message || "Internal Server Error",
   });
