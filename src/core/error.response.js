@@ -45,9 +45,49 @@ class AuthFailureError extends ErrorResponse {
   }
 }
 
+class MissingInputError extends ErrorResponse {
+  constructor(
+    message = MESSAGES.ERROR.INVALID_INPUT,
+    status = HTTP_STATUS_CODE.UNPROCESSABLE_ENTITY
+  ) {
+    super(message, status);
+  }
+}
+
+class OperationFailureError extends ErrorResponse {
+  constructor(
+    message = MESSAGES.OPERATION_FAILED.COMMON,
+    status = HTTP_STATUS_CODE.BAD_REQUEST
+  ) {
+    super(message, status);
+  }
+}
+
+class ServerError extends ErrorResponse {
+  constructor(
+    message = MESSAGES.ERROR.INTERNAL_SERVER_ERROR,
+    status = HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR
+  ) {
+    super(message, status);
+  }
+}
+
+class ForbiddenError extends ErrorResponse {
+  constructor(
+    message = MESSAGES.ERROR.FORBIDDEN,
+    status = HTTP_STATUS_CODE.FORBIDDEN
+  ) {
+    super(message, status);
+  }
+}
+
 module.exports = {
   ConflictRequestError,
   BadRequestError,
   NotFoundError,
   AuthFailureError,
+  MissingInputError,
+  OperationFailureError,
+  ServerError,
+  ForbiddenError,
 };
