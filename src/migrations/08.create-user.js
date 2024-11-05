@@ -21,6 +21,21 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      full_name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      address: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      phone_number: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      position: {
+        type: Sequelize.STRING,
+      },
       status: {
         type: Sequelize.ENUM("active", "blocked"),
         defaultValue: "active",
@@ -31,13 +46,7 @@ module.exports = {
       token_reset_password: {
         type: Sequelize.STRING,
       },
-      info_user_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: "info_users",
-          key: "id",
-        },
-      },
+
       role_id: {
         type: Sequelize.INTEGER,
         references: {

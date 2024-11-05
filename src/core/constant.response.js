@@ -6,6 +6,7 @@ const HTTP_STATUS_CODE = {
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   CONFLICT: 409,
+  UNPROCESSABLE_ENTITY: 422,
   INTERNAL_SERVER_ERROR: 500,
 };
 
@@ -39,6 +40,12 @@ const MESSAGES = {
     UNAUTHORIZED: "Unauthorized access",
   },
 
+  // operate  database
+  OPERATION_FAILED: {
+    UPDATE_FAILURE: "Somethings went wrong - update failed",
+    DELETE_FAILURE: "Somethings went wrong - delete failed",
+    COMMON: "Somethings went wrong",
+  },
   // User messages
   USER: {
     CREATE_SUCCESS: "User created successfully",
@@ -46,8 +53,10 @@ const MESSAGES = {
     DELETE_SUCCESS: "User deleted successfully",
     NOT_FOUND: "User not found",
     EXISTS: "User already exists",
+    EMAIL_EXISTS: "Email already exists",
     INVALID_EMAIL: "Invalid email format",
     INVALID_PASSWORD: "Invalid password format",
+    MISSING_ID_USER: "User ID is required",
   },
   PERMISSION: {
     DENIED: "You don't have permission to access!",

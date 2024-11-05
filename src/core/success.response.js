@@ -15,10 +15,22 @@ class SuccessResponse {
 
 class Created extends SuccessResponse {
   constructor(
-    options = {},
     message = MESSAGES.SUCCESS.CREATED,
     statusCode = HTTP_STATUS_CODE.CREATED,
-    metadata
+    metadata,
+    options = {}
+  ) {
+    super(message, statusCode, metadata);
+    this.options = options;
+  }
+}
+
+class GetAll extends SuccessResponse {
+  constructor(
+    message = MESSAGES.SUCCESS.GET,
+    statusCode = HTTP_STATUS_CODE.OK,
+    metadata,
+    options = {}
   ) {
     super(message, statusCode, metadata);
     this.options = options;
@@ -28,4 +40,5 @@ class Created extends SuccessResponse {
 module.exports = {
   Created,
   SuccessResponse,
+  GetAll,
 };

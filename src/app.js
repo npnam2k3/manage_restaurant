@@ -3,11 +3,14 @@ import morgan from "morgan";
 import compression from "compression";
 import helmet from "helmet";
 import router from "./routers/index.js";
+import cors from "cors";
 const { RESPONSE_TYPE } = require("./core/constant.response.js");
 const { NotFoundError } = require("./core/error.response.js");
 
 const app = express();
+
 // init middleware
+app.use(cors());
 app.use(morgan("dev"));
 app.use(helmet());
 app.use(compression()); // nen payload khi luong du lieu truyen qua lon

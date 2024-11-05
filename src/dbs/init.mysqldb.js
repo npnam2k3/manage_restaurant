@@ -1,7 +1,6 @@
 "use strict";
-
-import { Sequelize } from "sequelize";
-import configMysql from "../configs/config.mysql.js";
+const { Sequelize } = require("sequelize");
+const configMysql = require("../configs/config.mysql");
 
 const db = configMysql.db;
 
@@ -17,6 +16,7 @@ class Database {
       this.connection = new Sequelize(db.name, db.username, db.password, {
         host: db.host,
         dialect: db.dialect,
+        timezone: "+07:00",
         logging: process.env.NODE_ENV !== "production" ? console.log : false,
         pool: {
           max: 10,
@@ -47,4 +47,4 @@ class Database {
 }
 
 const instanceMySQL = Database.getInstance();
-export default instanceMySQL;
+module.exports = instanceMySQL;

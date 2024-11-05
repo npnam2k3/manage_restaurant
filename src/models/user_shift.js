@@ -1,7 +1,7 @@
 "use strict";
 const { Model, DataTypes } = require("sequelize");
 const instanceMySQL = require("../dbs/init.mysqldb");
-class RolePermission extends Model {
+class UserShift extends Model {
   /**
    * Helper method for defining associations.
    * This method is not a part of Sequelize lifecycle.
@@ -11,16 +11,18 @@ class RolePermission extends Model {
     // define association here
   }
 }
-RolePermission.init(
+UserShift.init(
   {
-    role_id: DataTypes.INTEGER,
-    permission_id: DataTypes.INTEGER,
+    shift_id: DataTypes.INTEGER,
+    user_id: DataTypes.INTEGER,
+    work_date: DataTypes.DATE,
+    status: DataTypes.ENUM("work", "off"),
   },
   {
     sequelize: instanceMySQL,
     paranoid: true,
-    modelName: "RolePermission",
-    tableName: "Role_Permissions",
+    modelName: "UserShift",
+    tableName: "User_Shifts",
   }
 );
-module.exports = RolePermission;
+module.exports = UserShift;

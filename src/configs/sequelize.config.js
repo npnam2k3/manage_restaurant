@@ -8,7 +8,7 @@ module.exports = {
     host: config.db.host || "localhost",
     port: config.db.port || "3306",
     dialect: "mysql",
-    timezone: "+07:00",
+    // timezone: "+07:00", neu chay lenh migration thi dùng để xét timezone
   },
   // test: {
   //   username: process.env.TEST_DB_USERNAME || "root",
