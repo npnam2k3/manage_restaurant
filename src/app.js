@@ -4,22 +4,29 @@ import compression from "compression";
 import helmet from "helmet";
 import router from "./routers/index.js";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 const { RESPONSE_TYPE } = require("./core/constant.response.js");
 const { NotFoundError } = require("./core/error.response.js");
 
 const app = express();
 
 // init middleware
-app.use(cors());
-app.use(morgan("dev"));
+// 1. security middleware
 app.use(helmet());
-app.use(compression()); // nen payload khi luong du lieu truyen qua lon
+app.use(cors());
+
+// 2. Request parsing middleware
 app.use(express.json());
 app.use(
   express.urlencoded({
     extended: true,
   })
 );
+app.use(cookieParser());
+
+// 3. Development & Utility Middleware
+app.use(morgan("dev")); // logging
+app.use(compression()); // nen payload khi luong du lieu truyen qua lon
 
 // init db
 require("./dbs/init.mysqldb.js");

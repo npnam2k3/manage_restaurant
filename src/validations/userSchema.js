@@ -9,7 +9,7 @@ const userSchema = Joi.object({
     .messages({
       "string.empty": "Email is not allowed to be empty",
       "string.pattern.base": "Email must be a valid email address",
-      "any.require": "Email is required",
+      "any.required": "Email is required",
     }),
   username: Joi.string().alphanum().min(5).max(20).trim().required().messages({
     "string.empty": "Username is not allowed to be empty",

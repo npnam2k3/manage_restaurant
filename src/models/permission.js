@@ -9,7 +9,11 @@ class Permission extends Model {
    */
   static associate(models) {
     // define association here
-    Permission.belongsToMany(models.Role, { through: "RolePermission" });
+    Permission.belongsToMany(models.Role, {
+      through: "Role_Permissions",
+      foreignKey: "permission_id",
+      otherKey: "role_id",
+    });
   }
 }
 Permission.init(

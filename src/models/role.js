@@ -1,6 +1,7 @@
 "use strict";
 const { Model, DataTypes } = require("sequelize");
 const instanceMySQL = require("../dbs/init.mysqldb");
+const User = require("./user");
 
 class Role extends Model {
   /**
@@ -10,8 +11,14 @@ class Role extends Model {
    */
   static associate(models) {
     // define association here
-    Role.hasMany(models.User);
-    Role.belongsToMany(models.Permission, { through: "RolePermission" });
+    Role.hasMany(User, {
+      foreignKey: "role_id",
+    });
+    Role.belongsToMany(models.Permission, {
+      through: "Role_Permissions",
+      foreignKey: "role_id",
+      otherKey: "permission_id",
+    });
   }
 }
 Role.init(

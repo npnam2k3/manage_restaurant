@@ -34,10 +34,14 @@ const MESSAGES = {
     LOGIN_SUCCESS: "Login successfully",
     LOGIN_FAILED: "Login failed",
     LOGOUT_SUCCESS: "Logout successfully",
-    INVALID_TOKEN: "Invalid token",
-    TOKEN_EXPIRED: "Token expired",
+    INVALID_TOKEN: "Invalid access token",
+    INVALID_REFRESH_TOKEN: "Invalid refresh token",
+    TOKEN_EXPIRED: "Access token has expired",
     INVALID_CREDENTIALS: "Invalid credentials",
-    UNAUTHORIZED: "Unauthorized access",
+    UNAUTHENTICATED: "Unauthenticated - Please login",
+    INCORRECT_PASSWORD: "Incorrect password",
+    REFRESH_TOKEN_REQUIRED: "Refresh token is required",
+    REFRESH_TOKEN_EXPIRED: "Refresh token expired, please login again",
   },
 
   // operate  database

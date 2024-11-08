@@ -37,8 +37,19 @@ class GetAll extends SuccessResponse {
   }
 }
 
+class Login extends SuccessResponse {
+  constructor(
+    message = MESSAGES.AUTH.LOGIN_SUCCESS,
+    statusCode = HTTP_STATUS_CODE.OK,
+    metadata
+  ) {
+    super(message, statusCode, metadata);
+  }
+}
+
 module.exports = {
   Created,
   SuccessResponse,
   GetAll,
+  Login,
 };

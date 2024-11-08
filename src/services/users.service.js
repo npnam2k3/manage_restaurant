@@ -117,7 +117,7 @@ class UserService {
         full_name: { [Op.substring]: keyword },
       };
     }
-    console.log("Check queries::", queries);
+    // console.log("Check queries::", queries);
     const { count, rows } = await User.findAndCountAll({
       ...queries,
       raw: true,
@@ -152,7 +152,7 @@ class UserService {
     };
   };
 
-  static getCurrentUser = async (userId) => {
+  static getUserById = async (userId) => {
     const currentUser = await User.findByPk(userId);
     if (!currentUser) {
       throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
