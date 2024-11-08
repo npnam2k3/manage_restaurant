@@ -36,9 +36,9 @@ class UserController {
     ).send(res);
   };
 
-  static getCurrentUser = async (req, res, next) => {
+  static getUserById = async (req, res, next) => {
     const userId = req.params.userId;
-    const currentUser = await UserService.getCurrentUser(userId);
+    const currentUser = await UserService.getUserById(userId);
     new SuccessResponse(
       MESSAGES.SUCCESS.GET,
       HTTP_STATUS_CODE.OK,

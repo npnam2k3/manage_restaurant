@@ -38,7 +38,7 @@ class NotFoundError extends ErrorResponse {
 
 class AuthFailureError extends ErrorResponse {
   constructor(
-    message = MESSAGES.AUTH.UNAUTHORIZED,
+    message = MESSAGES.AUTH.UNAUTHENTICATED,
     status = HTTP_STATUS_CODE.UNAUTHORIZED
   ) {
     super(message, status);
