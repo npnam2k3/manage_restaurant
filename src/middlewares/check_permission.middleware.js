@@ -27,7 +27,7 @@ const checkPermissions = (requiredPermissions) => {
     const permissionNames = permissions.Permissions.map(
       (p) => p.permission_name
     );
-    console.log("Permission names:", permissionNames);
+    // console.log("Permission names:", permissionNames);
     const isAdmin = permissionNames.some((per) => per === "*");
     if (isAdmin) {
       return next();
