@@ -22,13 +22,18 @@ class UserController {
 
   static getAllUser = async (req, res, next) => {
     const { page, limit, sortBy, orderBy, keyword } = req.query;
-    const listUser = await UserService.getAllUser({
-      page: parseInt(page) || 1,
-      limit: parseInt(limit) || +process.env.LIMIT_RECORD_USER,
-      sortBy,
-      orderBy: orderBy?.toUpperCase() === "DESC" ? "DESC" : "ASC",
-      keyword,
-    });
+    const roleId = req.user.role_id;
+    // console.log("check role id get ALL::", roleId);
+    const listUser = await UserService.getAllUser(
+      {
+        page: parseInt(page) || 1,
+        limit: parseInt(limit) || +process.env.LIMIT_RECORD_USER,
+        sortBy,
+        orderBy: orderBy?.toUpperCase() === "DESC" ? "DESC" : "ASC",
+        keyword,
+      },
+      roleId
+    );
     new SuccessResponse(
       MESSAGES.SUCCESS.GET,
       HTTP_STATUS_CODE.OK,

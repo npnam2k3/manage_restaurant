@@ -11,6 +11,7 @@ const { MESSAGES } = require("../core/constant.response");
 const { getInfoData } = require("../utils/index");
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
+const ROLE = require("../core/constant.role");
 
 class UserService {
   static saltRounds = 10;
@@ -104,16 +105,36 @@ class UserService {
     return MESSAGES.SUCCESS.UPDATE;
   };
 
-  static getAllUser = async ({ page, limit, orderBy, sortBy, keyword }) => {
+  static getAllUser = async (
+    { page, limit, orderBy, sortBy, keyword },
+    roleId
+  ) => {
     const queries = {
       offset: (page - 1) * limit,
       limit,
     };
+    if (roleId) {
+      // neu role la MANAGER thi khong duoc xem thong tin cua ADMIN
+      const isManager = await Role.findOne({
+        where: {
+          role_name: ROLE.MANAGER,
+        },
+      });
+      const isAdmin = await Role.findOne({
+        where: { role_name: ROLE.ADMIN },
+      });
+      if (roleId === isManager.id) {
+        queries.where = {
+          role_id: { [Op.ne]: isAdmin.id },
+        };
+      }
+    }
     if (sortBy) {
       queries.order = [[sortBy, orderBy]];
     }
     if (keyword) {
       queries.where = {
+        ...queries.where,
         full_name: { [Op.substring]: keyword },
       };
     }
