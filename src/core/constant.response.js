@@ -67,6 +67,10 @@ const MESSAGES = {
     EXISTS: "Customer already exists",
     NOT_FOUND: "Customer not found",
   },
+  TABLE: {
+    EXISTS: "Table already exists",
+    NOT_FOUND: "Table not found",
+  },
   PERMISSION: {
     DENIED: "You don't have permission to access!",
   },
