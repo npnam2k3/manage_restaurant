@@ -46,6 +46,7 @@ const MESSAGES = {
 
   // operate  database
   OPERATION_FAILED: {
+    CREATE_FAILURE: "Somethings went wrong - create failed",
     UPDATE_FAILURE: "Somethings went wrong - update failed",
     DELETE_FAILURE: "Somethings went wrong - delete failed",
     COMMON: "Somethings went wrong",
@@ -61,6 +62,10 @@ const MESSAGES = {
     INVALID_EMAIL: "Invalid email format",
     INVALID_PASSWORD: "Invalid password format",
     MISSING_ID_USER: "User ID is required",
+  },
+  CUSTOMER: {
+    EXISTS: "Customer already exists",
+    NOT_FOUND: "Customer not found",
   },
   PERMISSION: {
     DENIED: "You don't have permission to access!",
