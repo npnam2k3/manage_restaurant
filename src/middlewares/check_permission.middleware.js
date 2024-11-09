@@ -11,7 +11,7 @@ Permission.associate({ Role });
 const checkPermissions = (requiredPermissions) => {
   return async (req, res, next) => {
     const roleId = req.user.role_id;
-    console.log("check role id from middleware check permission::", roleId);
+    // console.log("check role id from middleware check permission::", roleId);
     const permissions = await Role.findByPk(roleId, {
       include: [
         {
