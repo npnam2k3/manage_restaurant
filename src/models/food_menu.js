@@ -1,6 +1,7 @@
 "use strict";
 const { Model, DataTypes } = require("sequelize");
 const instanceMySQL = require("../dbs/init.mysqldb");
+const Order = require("./order");
 class FoodMenu extends Model {
   /**
    * Helper method for defining associations.
@@ -9,9 +10,9 @@ class FoodMenu extends Model {
    */
   static associate(models) {
     // define association here
-    FoodMenu.belongsToMany(models.Order, { through: "OrderItem" });
-    FoodMenu.belongsTo(models.FoodCategory);
-    FoodMenu.belongsTo(models.Unit);
+    FoodMenu.belongsToMany(Order, { through: "OrderItem" });
+    FoodMenu.belongsTo(models.FoodCategory, { foreignKey: "category_id" });
+    FoodMenu.belongsTo(models.Unit, { foreignKey: "unit_id" });
   }
 }
 FoodMenu.init(

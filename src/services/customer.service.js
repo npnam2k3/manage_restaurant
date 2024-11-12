@@ -8,6 +8,7 @@ const {
 } = require("../core/error.response");
 const { getInfoData } = require("../utils/index");
 const { Op } = require("sequelize");
+const getDateTime = require("../utils/getDatetime");
 
 class CustomerService {
   static createCustomer = async (data) => {
@@ -50,10 +51,12 @@ class CustomerService {
   static getCustomerById = async (customerId) => {
     const customerInfo = await Customer.findByPk(customerId);
     if (!customerInfo) throw new NotFoundError(MESSAGES.CUSTOMER.NOT_FOUND);
-    return getInfoData({
+    const data = getInfoData({
       fields: ["id", "full_name", "phone_number", "order_count"],
       object: customerInfo,
     });
+    data.createdAt = getDateTime(customerInfo.createdAt);
+    return data;
   };
 
   static getAllCustomers = async ({
@@ -80,12 +83,14 @@ class CustomerService {
       raw: true,
     });
     if (count > 0) {
-      const listCustomer = rows.map((customer) =>
-        getInfoData({
+      const listCustomer = rows.map((customer) => {
+        const data = getInfoData({
           fields: ["id", "full_name", "phone_number", "order_count"],
           object: customer,
-        })
-      );
+        });
+        data.createdAt = getDateTime(customer.createdAt);
+        return data;
+      });
       return {
         total: listCustomer.length,
         page,

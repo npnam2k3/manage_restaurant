@@ -9,7 +9,7 @@ class FoodCategory extends Model {
    */
   static associate(models) {
     // define association here
-    FoodCategory.hasMany(models.FoodMenu);
+    FoodCategory.hasMany(models.FoodMenu, { foreignKey: "category_id" });
   }
 }
 FoodCategory.init(
