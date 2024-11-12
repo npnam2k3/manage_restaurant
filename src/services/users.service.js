@@ -12,6 +12,8 @@ const { getInfoData } = require("../utils/index");
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
 const ROLE = require("../core/constant.role");
+const getDateTime = require("../utils/getDatetime");
+const { date } = require("joi");
 
 class UserService {
   static saltRounds = 10;
@@ -143,8 +145,8 @@ class UserService {
       ...queries,
       raw: true,
     });
-    const listUser = rows.map((user) =>
-      getInfoData({
+    const listUser = rows.map((user) => {
+      const data = getInfoData({
         fields: [
           "id",
           "username",
@@ -155,8 +157,10 @@ class UserService {
           "position",
         ],
         object: user,
-      })
-    );
+      });
+      data.createdAt = getDateTime(user.createdAt);
+      return data;
+    });
     if (count > 0)
       return {
         total: listUser.length,
@@ -178,7 +182,7 @@ class UserService {
     if (!currentUser) {
       throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
     }
-    return getInfoData({
+    const data = getInfoData({
       fields: [
         "id",
         "username",
@@ -190,6 +194,8 @@ class UserService {
       ],
       object: currentUser,
     });
+    data.createdAt = getDateTime(currentUser.createdAt);
+    return data;
   };
 
   static deleteUser = async (userId) => {

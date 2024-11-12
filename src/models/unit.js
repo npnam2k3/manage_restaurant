@@ -9,7 +9,7 @@ class Unit extends Model {
    */
   static associate(models) {
     // define association here
-    Unit.hasMany(models.FoodMenu);
+    Unit.hasMany(models.FoodMenu, { foreignKey: "unit_id" });
   }
 }
 Unit.init(

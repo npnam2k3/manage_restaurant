@@ -71,6 +71,10 @@ const MESSAGES = {
     EXISTS: "Table already exists",
     NOT_FOUND: "Table not found",
   },
+  FOOD: {
+    EXISTS: "Food already exists",
+    NOT_FOUND: "Food not found",
+  },
   PERMISSION: {
     DENIED: "You don't have permission to access!",
   },

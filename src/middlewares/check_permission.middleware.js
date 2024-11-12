@@ -5,8 +5,8 @@ const { MESSAGES } = require("../core/constant.response");
 const { ForbiddenError } = require("../core/error.response");
 
 // Thiết lập associations trước khi sử dụng
-Role.associate({ Permission });
-Permission.associate({ Role });
+// Role.associate({ Permission });
+// Permission.associate({ Role });
 
 const checkPermissions = (requiredPermissions) => {
   return async (req, res, next) => {

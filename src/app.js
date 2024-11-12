@@ -7,6 +7,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 const { RESPONSE_TYPE } = require("./core/constant.response.js");
 const { NotFoundError } = require("./core/error.response.js");
+const models = require("../src/models/associate.init.js");
 
 const app = express();
 
