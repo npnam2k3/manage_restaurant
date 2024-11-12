@@ -5,6 +5,7 @@ import userRouter from "./users/index.js";
 import customerRouter from "./customers/index.js";
 import tableRouter from "./table/index.js";
 import foodRouter from "./foods/index.js";
+import unitRouter from "./units/index.js";
 
 const router = express.Router();
 const API_V1 = "/api/v1";
@@ -14,5 +15,6 @@ router.use(`${API_V1}/users`, userRouter);
 router.use(`${API_V1}/customers`, customerRouter);
 router.use(`${API_V1}/tables`, tableRouter);
 router.use(`${API_V1}/foods`, foodRouter);
+router.use(`${API_V1}/units`, unitRouter);
 
 export default router;
