@@ -79,6 +79,10 @@ const MESSAGES = {
     EXISTS: "Unit already exists",
     NOT_FOUND: "Unit not found",
   },
+  FOOD_CATEGORY: {
+    EXISTS: "FoodCategory already exists",
+    NOT_FOUND: "FoodCategory not found",
+  },
   PERMISSION: {
     DENIED: "You don't have permission to access!",
   },
