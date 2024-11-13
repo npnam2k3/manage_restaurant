@@ -7,7 +7,7 @@ const {
   OperationFailureError,
   ConflictRequestError,
 } = require("../core/error.response");
-const { MESSAGES } = require("../core/constant.response");
+const { MESSAGES, HTTP_STATUS_CODE } = require("../core/constant.response");
 const { getInfoData } = require("../utils/index");
 const bcrypt = require("bcrypt");
 const { Op } = require("sequelize");
@@ -23,14 +23,23 @@ class UserService {
       where: {
         // [Op.or]: {
         //   email: data.email,
-        //   username: data.username,
+        //   phone_number: data.phoneNumber,
         // },
         email: data.email,
       },
     });
     if (userExists) {
-      // console.log("check user exists::", userExists);
-      throw new ConflictRequestError(MESSAGES.USER.EMAIL_EXISTS);
+      const errorExists = {
+        email: MESSAGES.USER.EMAIL_EXISTS,
+      };
+      if (userExists.phone_number === data.phoneNumber) {
+        errorExists.phoneNumber = MESSAGES.USER.PHONE_NUMBER_EXISTS;
+      }
+      throw new ConflictRequestError(
+        MESSAGES.USER.EXISTS,
+        HTTP_STATUS_CODE.CONFLICT,
+        errorExists
+      );
     }
 
     // get role_id by roleName

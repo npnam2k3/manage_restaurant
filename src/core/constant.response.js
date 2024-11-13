@@ -26,6 +26,7 @@ const MESSAGES = {
     INTERNAL_SERVER_ERROR: "Internal Server Error",
     BAD_REQUEST: "Bad request",
     INVALID_INPUT: "Invalid input data",
+    VALIDATION_DATA: "Validate failure",
     CONFLICT: "Conflict request",
   },
 
@@ -57,8 +58,9 @@ const MESSAGES = {
     UPDATE_SUCCESS: "User updated successfully",
     DELETE_SUCCESS: "User deleted successfully",
     NOT_FOUND: "User not found",
-    EXISTS: "User already exists",
+    EXISTS: "Email or phone number already exists",
     EMAIL_EXISTS: "Email already exists",
+    PHONE_NUMBER_EXISTS: "Phone number already exists",
     INVALID_EMAIL: "Invalid email format",
     INVALID_PASSWORD: "Invalid password format",
     MISSING_ID_USER: "User ID is required",
