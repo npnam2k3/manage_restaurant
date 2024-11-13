@@ -1,9 +1,14 @@
 const { validateHelper } = require("../helpers/validation");
 const { MissingInputError } = require("../core/error.response");
 const deleteFileCloudinary = require("../utils/deleteFileCloudinary");
+const { HTTP_STATUS_CODE, MESSAGES } = require("../core/constant.response");
 
 const customError = (error) => {
-  return error.details.map((err) => err.message);
+  const errorObj = {};
+  error.details.forEach((err) => {
+    errorObj[err.path[0]] = err.message;
+  });
+  return errorObj;
 };
 const validateMiddleware = (schema) => {
   return (req, res, next) => {
@@ -14,7 +19,11 @@ const validateMiddleware = (schema) => {
         // console.log("co file nhung validate fail xoa file");
         deleteFileCloudinary(req.file.filename);
       }
-      throw new MissingInputError(customError(error));
+      throw new MissingInputError(
+        MESSAGES.ERROR.VALIDATION_DATA,
+        HTTP_STATUS_CODE.UNPROCESSABLE_ENTITY,
+        customError(error)
+      );
     }
     // Gán data đã validate vào req
     req.validatedData = value;

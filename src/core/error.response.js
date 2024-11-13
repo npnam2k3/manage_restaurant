@@ -12,9 +12,11 @@ class ErrorResponse extends Error {
 class ConflictRequestError extends ErrorResponse {
   constructor(
     message = MESSAGES.ERROR.CONFLICT,
-    status = HTTP_STATUS_CODE.CONFLICT
+    status = HTTP_STATUS_CODE.CONFLICT,
+    details = {}
   ) {
     super(message, status);
+    this.details = details;
   }
 }
 
@@ -48,9 +50,11 @@ class AuthFailureError extends ErrorResponse {
 class MissingInputError extends ErrorResponse {
   constructor(
     message = MESSAGES.ERROR.INVALID_INPUT,
-    status = HTTP_STATUS_CODE.UNPROCESSABLE_ENTITY
+    status = HTTP_STATUS_CODE.UNPROCESSABLE_ENTITY,
+    details = {}
   ) {
     super(message, status);
+    this.details = details;
   }
 }
 

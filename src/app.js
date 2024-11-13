@@ -48,6 +48,7 @@ app.use((err, req, res, next) => {
     status: RESPONSE_TYPE.ERROR,
     code: statusCode,
     message: err.message || "Internal Server Error",
+    details: err.details || {},
   });
 });
 
