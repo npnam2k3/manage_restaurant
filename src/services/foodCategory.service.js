@@ -7,6 +7,7 @@ const {
   NotFoundError,
 } = require("../core/error.response");
 const { getInfoData } = require("../utils/index");
+const FoodService = require("../services/food.service");
 
 class FoodCategoryService {
   static create = async (data) => {
@@ -42,14 +43,25 @@ class FoodCategoryService {
     return MESSAGES.SUCCESS.UPDATE;
   };
 
-  static getById = async (foodCategoryId) => {
+  static getById = async (
+    { page, limit, sortBy, orderBy, keyword },
+    foodCategoryId
+  ) => {
     const foodCategoryExists = await FoodCategory.findByPk(foodCategoryId);
     if (!foodCategoryExists)
       throw new NotFoundError(MESSAGES.FOOD_CATEGORY.NOT_FOUND);
-    return getInfoData({
+    const categoryData = getInfoData({
       fields: ["id", "name"],
       object: foodCategoryExists,
     });
+    const foodData = await FoodService.getAllByCategory(
+      { page, limit, sortBy, orderBy, keyword },
+      foodCategoryId
+    );
+    return {
+      categoryData,
+      foodData,
+    };
   };
 
   static getAll = async () => {
@@ -72,6 +84,12 @@ class FoodCategoryService {
     const foodCategoryExists = await FoodCategory.findByPk(foodCategoryId);
     if (!foodCategoryExists)
       throw new NotFoundError(MESSAGES.FOOD_CATEGORY.NOT_FOUND);
+    // xoa cac food co trong category
+    const deletedFood = await FoodService.deleteFoodByCateFoodId(
+      foodCategoryId
+    );
+    if (!deletedFood)
+      throw new OperationFailureError(MESSAGES.OPERATION_FAILED.DELETE_FAILURE);
     const rowDeleted = await FoodCategory.destroy({
       where: {
         id: foodCategoryId,

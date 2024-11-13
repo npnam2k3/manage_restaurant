@@ -150,6 +150,70 @@ class FoodService {
     };
   };
 
+  static getAllByCategory = async (
+    { page, limit, sortBy, orderBy, keyword },
+    foodCategoryId
+  ) => {
+    const queries = {
+      offset: (page - 1) * limit,
+      limit,
+    };
+    if (sortBy) {
+      queries.order = [[sortBy, orderBy]];
+    }
+    if (keyword) {
+      queries.where = {
+        name: { [Op.substring]: keyword },
+      };
+    }
+    queries.where = {
+      ...queries.where,
+      category_id: foodCategoryId,
+    };
+    const { count, rows } = await FoodMenu.findAndCountAll({
+      ...queries,
+      include: [
+        {
+          model: Unit,
+          attributes: ["name"],
+        },
+        {
+          model: FoodCategory,
+          attributes: ["name"],
+        },
+      ],
+      raw: true,
+      nest: true,
+    });
+    // console.log("check result::", rows);
+    if (count > 0) {
+      const listFoods = rows.map((food) => {
+        const data = getInfoData({
+          fields: ["id", "name", "image_url", "price"],
+          object: food,
+        });
+        data.unit = food.Unit.name;
+        data.category = food.FoodCategory.name;
+        data.createdAt = getDateTime(food.createdAt);
+        return data;
+      });
+      return {
+        total: listFoods.length,
+        page,
+        limit,
+        totalPage: Math.ceil(count / limit),
+        listFoods,
+      };
+    }
+    return {
+      total: 0,
+      page,
+      limit,
+      totalPages: 0,
+      listFoods: [],
+    };
+  };
+
   static deleteFood = async (foodId) => {
     const foodExists = await FoodMenu.findByPk(foodId);
     if (!foodExists) {
@@ -161,6 +225,14 @@ class FoodService {
     if (rowDeleted === 0)
       throw new OperationFailureError(MESSAGES.OPERATION_FAILED.DELETE_FAILURE);
     return MESSAGES.SUCCESS.DELETE;
+  };
+
+  static deleteFoodByCateFoodId = async (foodCategoryId) => {
+    const rowDeleted = await FoodMenu.destroy({
+      where: { category_id: foodCategoryId },
+    });
+    if (rowDeleted === 0) return false;
+    return true;
   };
 }
 module.exports = FoodService;
