@@ -14,6 +14,7 @@ const verifyRefreshToken = require("../helpers/verify_refreshToken");
 const { raw } = require("mysql2");
 
 class AuthService {
+  static saltRounds = 10;
   static COOKIE_MAX_AGE = 10 * 24 * 60 * 60 * 1000; // 10 days
   static COOKIE_NAME = "refreshToken";
   static COOKIE_CONFIG = {
@@ -170,6 +171,38 @@ class AuthService {
       maxAge: 0,
     });
     return MESSAGES.AUTH.LOGOUT_SUCCESS;
+  };
+
+  static changePassword = async (req, res, { passwordOld, passwordNew }) => {
+    const { userId } = req?.user;
+    const userLogin = await User.findByPk(userId);
+    if (!userLogin) throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
+
+    // kiem tra password cu
+    const matchPassword = await bcrypt.compare(passwordOld, userLogin.password);
+    if (!matchPassword) {
+      throw new AuthFailureError(MESSAGES.AUTH.INCORRECT_PASSWORD);
+    }
+
+    // cap nhat vao db
+    const passwordNewHash = await bcrypt.hash(passwordNew, this.saltRounds);
+    const [rowUpdated] = await User.update(
+      {
+        password: passwordNewHash,
+        refresh_token: null,
+      },
+      { where: { id: userLogin.id } }
+    );
+    if (rowUpdated === 0) {
+      throw new OperationFailureError(MESSAGES.OPERATION_FAILED.UPDATE_FAILURE);
+    }
+
+    // cap nhat password moi thanh cong vao db => xoa cookie de logout
+    res.clearCookie(this.COOKIE_NAME, {
+      ...this.COOKIE_CONFIG,
+      maxAge: 0,
+    });
+    return MESSAGES.AUTH.CHANGE_PASSWORD_SUCCESS;
   };
 }
 

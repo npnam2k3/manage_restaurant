@@ -9,8 +9,8 @@ class User extends Model {
    */
   static associate(models) {
     // define association here
-    User.belongsTo(models.Role);
-    User.belongsToMany(models.Shift, { through: "UserShift" });
+    User.belongsTo(models.Role, { foreignKey: "role_id" });
+    // User.belongsToMany(models.Shift, { through: "UserShift" });
   }
 }
 User.init(

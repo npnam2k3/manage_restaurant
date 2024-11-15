@@ -31,6 +31,15 @@ class AuthController {
     const response = await AuthService.logout(req, res);
     new SuccessResponse(response, HTTP_STATUS_CODE.OK).send(res);
   };
+
+  static changePassword = async (req, res) => {
+    const response = await AuthService.changePassword(
+      req,
+      res,
+      req.validatedData
+    );
+    new SuccessResponse(response, HTTP_STATUS_CODE.OK).send(res);
+  };
 }
 
 module.exports = AuthController;

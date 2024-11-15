@@ -35,6 +35,7 @@ const MESSAGES = {
     LOGIN_SUCCESS: "Login successfully",
     LOGIN_FAILED: "Login failed",
     LOGOUT_SUCCESS: "Logout successfully",
+    CHANGE_PASSWORD_SUCCESS: "Change password successfully",
     INVALID_TOKEN: "Invalid access token",
     INVALID_REFRESH_TOKEN: "Invalid refresh token",
     TOKEN_EXPIRED: "Access token has expired",

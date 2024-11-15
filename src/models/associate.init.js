@@ -4,6 +4,7 @@ const FoodMenu = require("./food_menu");
 const Unit = require("./unit");
 const Role = require("./role");
 const Permission = require("./permission");
+const User = require("../models/user");
 
 // Tạo một đối tượng chứa tất cả các mô hình
 const models = {
@@ -12,6 +13,7 @@ const models = {
   Unit,
   Role,
   Permission,
+  User,
 };
 
 // Gọi phương thức associate cho từng mô hình nếu nó tồn tại
