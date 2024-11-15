@@ -11,6 +11,7 @@ class Table extends Model {
     // define association here
     Table.belongsTo(models.Customer);
     Table.hasOne(models.Order);
+    Table.belongsToMany(models.Food_Menu, { through: "Table_FoodMenu" });
   }
 }
 Table.init(
@@ -21,7 +22,7 @@ Table.init(
     // available: con trong
     // occupied: dang co khach ngoi
     customer_id: DataTypes.INTEGER,
-    reservation_time: DataTypes.DATE,
+    seat_number: DataTypes.INTEGER,
   },
   {
     sequelize: instanceMySQL,

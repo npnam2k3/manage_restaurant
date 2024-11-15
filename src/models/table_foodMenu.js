@@ -1,27 +1,24 @@
 "use strict";
 const { Model, DataTypes } = require("sequelize");
 const instanceMySQL = require("../dbs/init.mysqldb");
-class Shift extends Model {
+class Table_FoodMenu extends Model {
   /**
    * Helper method for defining associations.
    * This method is not a part of Sequelize lifecycle.
    * The `models/index` file will call this method automatically.
    */
-  static associate(models) {
-    // define association here
-    Shift.belongsToMany(models.User, { through: "UserShift" });
-  }
+  static associate(models) {}
 }
-Shift.init(
+Table_FoodMenu.init(
   {
-    shift_name: DataTypes.STRING,
-    start_time: DataTypes.TIME,
-    end_time: DataTypes.TIME,
+    table_id: DataTypes.INTEGER,
+    food_menu_id: DataTypes.INTEGER,
+    quantity: DataTypes.INTEGER,
   },
   {
     sequelize: instanceMySQL,
     paranoid: true,
-    modelName: "Shift",
+    modelName: "Table_FoodMenu",
   }
 );
-module.exports = Shift;
+module.exports = Table_FoodMenu;

@@ -13,6 +13,7 @@ class FoodMenu extends Model {
     FoodMenu.belongsToMany(Order, { through: "OrderItem" });
     FoodMenu.belongsTo(models.FoodCategory, { foreignKey: "category_id" });
     FoodMenu.belongsTo(models.Unit, { foreignKey: "unit_id" });
+    FoodMenu.belongsToMany(models.Table, { through: "Table_FoodMenu" });
   }
 }
 FoodMenu.init(
