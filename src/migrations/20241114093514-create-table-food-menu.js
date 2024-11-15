@@ -1,23 +1,31 @@
 "use strict";
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Shifts", {
+    await queryInterface.createTable("Table_Food_Menu", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      shift_name: {
-        type: Sequelize.STRING,
-        allowNull: false,
+      table_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Tables", // Tên bảng Table
+          key: "id",
+        },
       },
-      start_time: {
-        type: Sequelize.TIME,
+      food_menu_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Food_Menus", // Tên bảng Food_Menu
+          key: "id",
+        },
       },
-      end_time: {
-        type: Sequelize.TIME,
+      quantity: {
+        type: Sequelize.INTEGER,
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -30,7 +38,8 @@ module.exports = {
       },
     });
   },
+
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Shifts");
+    await queryInterface.dropTable("Table_Food_Menu");
   },
 };
