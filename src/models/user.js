@@ -9,7 +9,7 @@ class User extends Model {
    */
   static associate(models) {
     // define association here
-    User.belongsTo(models.Role);
+    User.belongsTo(models.Role, { foreignKey: "role_id" });
   }
 }
 User.init(
