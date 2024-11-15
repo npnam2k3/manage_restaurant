@@ -5,6 +5,10 @@ const Unit = require("./unit");
 const Role = require("./role");
 const Permission = require("./permission");
 const User = require("../models/user");
+const Table = require("../models/table");
+const Customer = require("../models/customer");
+const Order = require("../models/order");
+const Discount = require("../models/discount");
 
 // Tạo một đối tượng chứa tất cả các mô hình
 const models = {
@@ -14,6 +18,10 @@ const models = {
   Role,
   Permission,
   User,
+  Table,
+  Customer,
+  Order,
+  Discount,
 };
 
 // Gọi phương thức associate cho từng mô hình nếu nó tồn tại

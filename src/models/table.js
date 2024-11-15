@@ -11,7 +11,10 @@ class Table extends Model {
     // define association here
     Table.belongsTo(models.Customer);
     Table.hasOne(models.Order);
-    Table.belongsToMany(models.Food_Menu, { through: "Table_FoodMenu" });
+    Table.belongsToMany(models.FoodMenu, {
+      through: "Table_FoodMenu",
+      foreignKey: "table_id",
+    });
   }
 }
 Table.init(
