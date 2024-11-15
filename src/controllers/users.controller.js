@@ -21,7 +21,7 @@ class UserController {
   };
 
   static getAllUser = async (req, res, next) => {
-    const { page, limit, sortBy, orderBy, keyword } = req.query;
+    const { page, limit, sortBy, orderBy, keyword, status } = req.query;
     const roleId = req.user.role_id;
     // console.log("check role id get ALL::", roleId);
     const listUser = await UserService.getAllUser(
@@ -31,6 +31,7 @@ class UserController {
         sortBy,
         orderBy: orderBy?.toUpperCase() === "DESC" ? "DESC" : "ASC",
         keyword,
+        status: status?.toLowerCase(),
       },
       roleId
     );

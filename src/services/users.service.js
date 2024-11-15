@@ -10,10 +10,9 @@ const {
 const { MESSAGES, HTTP_STATUS_CODE } = require("../core/constant.response");
 const { getInfoData } = require("../utils/index");
 const bcrypt = require("bcrypt");
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const ROLE = require("../core/constant.role");
 const getDateTime = require("../utils/getDatetime");
-const { date } = require("joi");
 
 class UserService {
   static saltRounds = 10;
@@ -117,7 +116,7 @@ class UserService {
   };
 
   static getAllUser = async (
-    { page, limit, orderBy, sortBy, keyword },
+    { page, limit, orderBy, sortBy, keyword, status },
     roleId
   ) => {
     const queries = {
@@ -149,11 +148,21 @@ class UserService {
         full_name: { [Op.substring]: keyword },
       };
     }
+    if (status) {
+      queries.where = {
+        ...queries.where,
+        status: { [Op.like]: status },
+      };
+    }
     // console.log("Check queries::", queries);
     const { count, rows } = await User.findAndCountAll({
       ...queries,
+      include: [{ model: Role, attributes: ["role_name"] }],
+      paranoid: false,
       raw: true,
+      nest: true,
     });
+
     const listUser = rows.map((user) => {
       const data = getInfoData({
         fields: [
@@ -164,17 +173,20 @@ class UserService {
           "phone_number",
           "address",
           "position",
+          "status",
         ],
         object: user,
       });
       data.createdAt = getDateTime(user.createdAt);
+      data.roleName = user.Role.role_name;
       return data;
     });
     if (count > 0)
       return {
-        total: listUser.length,
+        total: count,
         page,
         limit,
+        status,
         totalPage: Math.ceil(count / limit),
         listUser,
       };
@@ -182,12 +194,19 @@ class UserService {
       total: 0,
       page,
       limit,
+      status,
       totalPages: 0,
+      listUser: [],
     };
   };
 
   static getUserById = async (userId) => {
-    const currentUser = await User.findByPk(userId);
+    const currentUser = await User.findByPk(userId, {
+      include: [{ model: Role, attributes: ["role_name"] }],
+      paranoid: false,
+      raw: true,
+      nest: true,
+    });
     if (!currentUser) {
       throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
     }
@@ -200,10 +219,12 @@ class UserService {
         "phone_number",
         "address",
         "position",
+        "status",
       ],
       object: currentUser,
     });
     data.createdAt = getDateTime(currentUser.createdAt);
+    data.roleName = currentUser.Role.role_name;
     return data;
   };
 
@@ -212,6 +233,15 @@ class UserService {
     if (!currentUser) {
       throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
     }
+    const [rowUpdated] = await User.update(
+      { status: "blocked" },
+      {
+        where: {
+          id: userId,
+        },
+      }
+    );
+    if (rowUpdated === 0) return MESSAGES.OPERATION_FAILED.DELETE_FAILURE;
     const rowDeleted = await User.destroy({
       where: {
         id: userId,
