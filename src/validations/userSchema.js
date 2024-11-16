@@ -32,7 +32,7 @@ const userSchema = Joi.object({
       "string.max": "Password cannot exceed {#limit} characters",
       "any.required": "Password is required",
     }),
-  fullName: Joi.string()
+  full_name: Joi.string()
     .pattern(/^[a-zA-ZÀ-ỹ\s]+$/)
     .trim()
     .required()

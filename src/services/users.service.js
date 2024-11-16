@@ -53,7 +53,7 @@ class UserService {
       username: data.username,
       email: data.email,
       password: passwordHash,
-      full_name: data.fullName,
+      full_name: data.full_name,
       address: data.address,
       phone_number: data.phoneNumber,
       position: data.position,
