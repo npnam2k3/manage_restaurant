@@ -11,7 +11,8 @@ const { createPairToken } = require("../utils/authUtils");
 const { getInfoData } = require("../utils/index");
 const { where } = require("sequelize");
 const verifyRefreshToken = require("../helpers/verify_refreshToken");
-const { raw } = require("mysql2");
+const Role = require("../models/role");
+const getDateTime = require("../utils/getDatetime");
 
 class AuthService {
   static saltRounds = 10;
@@ -137,12 +138,16 @@ class AuthService {
   static getInfo = async (req) => {
     const { userId } = req?.user;
     // console.log("check id user::", userId);
-    const infoUser = await User.findByPk(userId, { raw: true });
+    const infoUser = await User.findByPk(userId, {
+      include: [{ model: Role, attributes: ["role_name"] }],
+      raw: true,
+      nest: true,
+    });
     // console.log("check user info::", infoUser);
     if (!infoUser) {
       throw new OperationFailureError(MESSAGES.OPERATION_FAILED.COMMON);
     }
-    return getInfoData({
+    const data = getInfoData({
       fields: [
         "id",
         "email",
@@ -151,9 +156,13 @@ class AuthService {
         "phone_number",
         "address",
         "position",
+        "status",
       ],
       object: infoUser,
     });
+    data.role_name = infoUser.Role.role_name;
+    data.createdAt = getDateTime(infoUser.createdAt);
+    return data;
   };
 
   static logout = async (req, res) => {
