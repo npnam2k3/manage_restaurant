@@ -19,6 +19,7 @@ Table_FoodMenu.init(
     sequelize: instanceMySQL,
     paranoid: true,
     modelName: "Table_FoodMenu",
+    tableName: "Table_Food_Menu",
   }
 );
 module.exports = Table_FoodMenu;

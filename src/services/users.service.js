@@ -20,20 +20,21 @@ class UserService {
     // check email and username exists
     const userExists = await User.findOne({
       where: {
-        // [Op.or]: {
-        //   email: data.email,
-        //   phone_number: data.phoneNumber,
-        // },
-        email: data.email,
+        [Op.or]: {
+          email: data.email,
+          phone_number: data.phoneNumber,
+        },
       },
     });
     if (userExists) {
-      const errorExists = {
-        email: MESSAGES.USER.EMAIL_EXISTS,
-      };
+      let errorExists = {};
+      if (userExists.email === data.email) {
+        errorExists.email = MESSAGES.USER.EMAIL_EXISTS;
+      }
       if (userExists.phone_number === data.phoneNumber) {
         errorExists.phoneNumber = MESSAGES.USER.PHONE_NUMBER_EXISTS;
       }
+
       throw new ConflictRequestError(
         MESSAGES.USER.EXISTS,
         HTTP_STATUS_CODE.CONFLICT,
