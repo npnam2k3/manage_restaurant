@@ -9,7 +9,7 @@ class Table extends Model {
    */
   static associate(models) {
     // define association here
-    Table.belongsTo(models.Customer);
+    Table.belongsTo(models.Customer, { foreignKey: "customer_id" });
     Table.hasOne(models.Order);
     Table.belongsToMany(models.FoodMenu, {
       through: "Table_FoodMenu",

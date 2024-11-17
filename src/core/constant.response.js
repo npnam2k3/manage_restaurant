@@ -71,8 +71,14 @@ const MESSAGES = {
     NOT_FOUND: "Customer not found",
   },
   TABLE: {
+    TABLE_ID: "Table ID is required",
     EXISTS: "Table already exists",
     NOT_FOUND: "Table not found",
+    BOOKING_FAIL: "Booking table failure - Somethings went wrong",
+    BOOKING_SUCCESSFULLY: "Booking table successfully",
+    ORDER_FOOD_FAIL: "Order food failure",
+    ORDER_FOOD_SUCCESS: "Order food successfully",
+    UPDATE_ORDER_FOOD_SUCCESS: "Update order food successfully",
   },
   FOOD: {
     EXISTS: "Food already exists",

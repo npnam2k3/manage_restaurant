@@ -10,7 +10,7 @@ class Customer extends Model {
    */
   static associate(models) {
     // define association here
-    Customer.hasMany(models.Table);
+    Customer.hasMany(models.Table, { foreignKey: "customer_id" });
     Customer.belongsToMany(models.Discount, { through: "CustomerDiscount" });
   }
 }
