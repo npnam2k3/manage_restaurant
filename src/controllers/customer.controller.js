@@ -16,7 +16,7 @@ class CustomerController {
 
   static updateCustomer = async (req, res, next) => {
     const customerId = parseInt(req.params.customerId);
-    console.log("check data update validate::", req.validatedData);
+    // console.log("check data update validate::", req.validatedData);
     const response = await CustomerService.updateCustomer(
       customerId,
       req.validatedData

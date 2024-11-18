@@ -79,7 +79,23 @@ class UserService {
       throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
     }
     const updateDataClone = { ...dataUpdate };
-    // console.log("clone data::", updateDataClone);
+    if (updateDataClone.phone_number) {
+      const phoneExists = await User.findOne({
+        where: {
+          phone_number: updateDataClone.phone_number,
+        },
+      });
+      if (phoneExists) {
+        const error = {
+          phone_number: MESSAGES.USER.PHONE_NUMBER_EXISTS,
+        };
+        throw new ConflictRequestError(
+          MESSAGES.ERROR.CONFLICT,
+          HTTP_STATUS_CODE.CONFLICT,
+          error
+        );
+      }
+    }
     if (updateDataClone.roleName) {
       // get role_id by roleName
       const role = await Role.findOne({
@@ -100,19 +116,6 @@ class UserService {
     if (numberRow === 0) {
       throw new OperationFailureError(MESSAGES.OPERATION_FAILED.UPDATE_FAILURE);
     }
-    // Lấy user sau khi update để trả về (nếu muốn trả về data)
-    // const updatedUser = await User.findByPk(userId);
-    // return getInfoData({
-    //   fields: [
-    //     "id",
-    //     "username",
-    //     "email",
-    //     "full_name",
-    //     "phone_number",
-    //     "address",
-    //   ],
-    //   object: updatedUser,
-    // });
     return MESSAGES.SUCCESS.UPDATE;
   };
 
