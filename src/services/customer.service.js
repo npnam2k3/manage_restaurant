@@ -1,6 +1,6 @@
 "use strict";
 const Customer = require("../models/customer");
-const { MESSAGES } = require("../core/constant.response");
+const { MESSAGES, HTTP_STATUS_CODE } = require("../core/constant.response");
 const {
   ConflictRequestError,
   OperationFailureError,
@@ -38,6 +38,23 @@ class CustomerService {
     const customerExists = await Customer.findByPk(customerId);
     if (!customerExists) {
       throw new NotFoundError(MESSAGES.CUSTOMER.NOT_FOUND);
+    }
+    if (dataUpdate.phone_number) {
+      const phoneExists = await Customer.findOne({
+        where: {
+          phone_number: dataUpdate.phone_number,
+        },
+      });
+      if (phoneExists) {
+        const err = {
+          phone_number: MESSAGES.CUSTOMER.PHONE_NUMBER_EXISTS,
+        };
+        throw new ConflictRequestError(
+          MESSAGES.ERROR.CONFLICT,
+          HTTP_STATUS_CODE.CONFLICT,
+          err
+        );
+      }
     }
     const [rowUpdated] = await Customer.update(dataUpdate, {
       where: { id: customerId },

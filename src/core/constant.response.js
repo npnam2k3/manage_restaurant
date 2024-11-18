@@ -69,6 +69,7 @@ const MESSAGES = {
   CUSTOMER: {
     EXISTS: "Customer already exists",
     NOT_FOUND: "Customer not found",
+    PHONE_NUMBER_EXISTS: "Phone number already exists",
   },
   TABLE: {
     TABLE_ID: "Table ID is required",
