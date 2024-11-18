@@ -24,6 +24,7 @@ User.init(
     status: DataTypes.ENUM("active", "blocked"),
     refresh_token: DataTypes.STRING,
     token_reset_password: DataTypes.STRING,
+    token_reset_password_expiration: DataTypes.DATE,
     role_id: DataTypes.INTEGER,
   },
   {

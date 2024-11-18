@@ -6,12 +6,25 @@ const { asyncHandle } = require("../../utils/handleError");
 const validateMiddleware = require("../../middlewares/validate.middleware");
 const userSchema = require("../../validations/userSchema");
 const userUpdateSchema = require("../../validations/userUpdateSchema");
+const forgotPasswordSchema = require("../../validations/forgotPasswordSchema");
+const resetPasswordSchema = require("../../validations/resetPasswordSchema");
 const checkPermissions = require("../../middlewares/check_permission.middleware");
 const { PERMISSIONS } = require("../../core/constant.permission");
 const {
   verifyAccessToken,
 } = require("../../middlewares/verify_token.middleware");
 const router = express.Router();
+
+router.post(
+  "/forgotPassword",
+  validateMiddleware(forgotPasswordSchema),
+  asyncHandle(UserController.forgotPassword)
+);
+router.put(
+  "/resetPassword/:token",
+  validateMiddleware(resetPasswordSchema),
+  asyncHandle(UserController.resetPassword)
+);
 
 router.use(verifyAccessToken);
 router.post(
