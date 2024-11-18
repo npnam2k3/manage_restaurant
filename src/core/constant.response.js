@@ -17,6 +17,7 @@ const MESSAGES = {
     UPDATE: "Updated successfully",
     DELETE: "Deleted successfully",
     GET: "Retrieved successfully",
+    SEND_MAIL: "Send mail successfully",
   },
 
   // error message
@@ -28,6 +29,7 @@ const MESSAGES = {
     INVALID_INPUT: "Invalid input data",
     VALIDATION_DATA: "Validate failure",
     CONFLICT: "Conflict request",
+    SEND_MAIL: "Send mail failure",
   },
 
   // Auth message
@@ -58,6 +60,7 @@ const MESSAGES = {
     CREATE_SUCCESS: "User created successfully",
     UPDATE_SUCCESS: "User updated successfully",
     DELETE_SUCCESS: "User deleted successfully",
+    RESET_PASSWORD_SUCCESS: "Reset password successfully",
     NOT_FOUND: "User not found",
     EXISTS: "Email or phone number already exists",
     EMAIL_EXISTS: "Email already exists",
@@ -65,6 +68,7 @@ const MESSAGES = {
     INVALID_EMAIL: "Invalid email format",
     INVALID_PASSWORD: "Invalid password format",
     MISSING_ID_USER: "User ID is required",
+    RESET_TOKEN: "Token for reset password is required",
   },
   CUSTOMER: {
     EXISTS: "Customer already exists",

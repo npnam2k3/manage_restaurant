@@ -13,9 +13,12 @@ const bcrypt = require("bcrypt");
 const { Op, where } = require("sequelize");
 const ROLE = require("../core/constant.role");
 const getDateTime = require("../utils/getDatetime");
+const crypto = require("crypto");
+const sendMail = require("../helpers/sendMail");
 
 class UserService {
   static saltRounds = 10;
+  static EXPIRATION_TIME = 60 * 15 * 1000;
   static createUser = async (data) => {
     // check email and username exists
     const userExists = await User.findOne({
@@ -255,6 +258,55 @@ class UserService {
       return MESSAGES.OPERATION_FAILED.DELETE_FAILURE;
     }
     return MESSAGES.SUCCESS.DELETE;
+  };
+
+  static forgotPassword = async ({ email }) => {
+    const userExists = await User.findOne({
+      where: {
+        email: email,
+      },
+    });
+    if (!userExists) {
+      throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
+    }
+    const tokenReset = crypto.randomBytes(32).toString("hex");
+    userExists.token_reset_password = tokenReset;
+    userExists.token_reset_password_expiration =
+      Date.now() + this.EXPIRATION_TIME;
+    await userExists.save();
+
+    const urlClient = process.env.CLIENT_URL;
+    const resetLink = `${urlClient}/resetPassword/${tokenReset}`;
+    const html = `Vui lòng click vào link dưới đây để thay đổi mật khẩu của bạn. Link này sẽ hết hạn sau 15 phút kể từ bây giờ. <a href=${resetLink}>Click here</a>`;
+
+    try {
+      await sendMail({ email, html });
+      return MESSAGES.SUCCESS.SEND_MAIL;
+    } catch (error) {
+      throw new OperationFailureError(MESSAGES.ERROR.SEND_MAIL);
+    }
+  };
+
+  static resetPassword = async (token, passwordNew) => {
+    if (!token) throw new MissingInputError(MESSAGES.USER.RESET_TOKEN);
+    const userExists = await User.findOne({
+      where: {
+        token_reset_password: token,
+        token_reset_password_expiration: {
+          [Op.gt]: Date.now(),
+        },
+      },
+    });
+    if (!userExists) {
+      throw new NotFoundError(MESSAGES.USER.NOT_FOUND);
+    }
+    const passwordHash = await bcrypt.hash(passwordNew, this.saltRounds);
+    userExists.password = passwordHash;
+    userExists.token_reset_password = null;
+    userExists.token_reset_password_expiration = null;
+    await userExists.save();
+
+    return MESSAGES.USER.RESET_PASSWORD_SUCCESS;
   };
 }
 

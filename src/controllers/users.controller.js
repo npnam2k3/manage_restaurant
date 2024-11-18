@@ -59,6 +59,18 @@ class UserController {
       HTTP_STATUS_CODE.OK
     ).send(res);
   };
+
+  static forgotPassword = async (req, res) => {
+    const response = await UserService.forgotPassword(req.validatedData);
+    new SuccessResponse(response).send(res);
+  };
+
+  static resetPassword = async (req, res) => {
+    const { passwordNew } = req.validatedData;
+    const token = req.params.token;
+    const response = await UserService.resetPassword(token, passwordNew);
+    new SuccessResponse(response).send(res);
+  };
 }
 
 module.exports = UserController;
