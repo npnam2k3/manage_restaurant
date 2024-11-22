@@ -25,7 +25,7 @@ class UserService {
       where: {
         [Op.or]: {
           email: data.email,
-          phone_number: data.phoneNumber,
+          phone_number: data.phone_number,
         },
       },
     });
@@ -34,8 +34,8 @@ class UserService {
       if (userExists.email === data.email) {
         errorExists.email = MESSAGES.USER.EMAIL_EXISTS;
       }
-      if (userExists.phone_number === data.phoneNumber) {
-        errorExists.phoneNumber = MESSAGES.USER.PHONE_NUMBER_EXISTS;
+      if (userExists.phone_number === data.phone_number) {
+        errorExists.phone_number = MESSAGES.USER.PHONE_NUMBER_EXISTS;
       }
 
       throw new ConflictRequestError(
@@ -59,7 +59,7 @@ class UserService {
       password: passwordHash,
       full_name: data.full_name,
       address: data.address,
-      phone_number: data.phoneNumber,
+      phone_number: data.phone_number,
       position: data.position,
       role_id: role.id,
     });
