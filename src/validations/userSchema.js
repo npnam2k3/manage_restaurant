@@ -42,7 +42,7 @@ const userSchema = Joi.object({
         "Full name must contain only letters and spaces, no special characters or numbers allowed",
       "any.required": "Full name is required",
     }),
-  phoneNumber: Joi.string()
+  phone_number: Joi.string()
     .pattern(/^(0|84)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{7}$/)
     .trim()
     .required()
