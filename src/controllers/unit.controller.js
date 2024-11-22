@@ -31,7 +31,11 @@ class UnitController {
   };
 
   static getAll = async (req, res) => {
-    const response = await UnitService.getAll();
+    const { page, limit } = req.query;
+    const response = await UnitService.getAll({
+      page: parseInt(page) || 1,
+      limit: parseInt(limit) || +process.env.LIMIT_RECORD_UNIT,
+    });
     new SuccessResponse(
       MESSAGES.SUCCESS.GET,
       HTTP_STATUS_CODE.OK,

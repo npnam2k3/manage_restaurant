@@ -53,17 +53,36 @@ class UnitService {
     });
   };
 
-  static getAll = async () => {
-    const { count, rows } = await Unit.findAndCountAll({ raw: true });
-    const listUnits = rows.map((unit) =>
-      getInfoData({
-        fields: ["id", "name", "description"],
-        object: unit,
-      })
-    );
+  static getAll = async ({ page, limit }) => {
+    const queries = {
+      offset: (page - 1) * limit,
+      limit,
+    };
+    const { count, rows } = await Unit.findAndCountAll({
+      ...queries,
+      raw: true,
+    });
+    if (count > 0) {
+      const listUnits = rows.map((unit) =>
+        getInfoData({
+          fields: ["id", "name", "description"],
+          object: unit,
+        })
+      );
+      return {
+        total: listUnits.length,
+        page,
+        limit,
+        totalPage: Math.ceil(count / limit),
+        listUnits,
+      };
+    }
     return {
-      total: count,
-      listUnits,
+      total: 0,
+      page,
+      limit,
+      totalPages: 0,
+      listUnits: [],
     };
   };
 }
