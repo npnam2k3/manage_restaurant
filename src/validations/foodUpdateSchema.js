@@ -27,6 +27,9 @@ const foodUpdateSchema = Joi.object({
       "number.base": "Unit ID must be a number",
       "number.min": "Unit ID must be a non-negative number", // Thông báo lỗi nếu unit_id nhỏ hơn 0
     }),
+  description: Joi.string().trim().messages({
+    "string.empty": "Description of food is not allowed to be empty",
+  }),
 });
 
 module.exports = foodUpdateSchema;

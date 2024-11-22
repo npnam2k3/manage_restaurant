@@ -26,6 +26,7 @@ FoodMenu.init(
     price: DataTypes.BIGINT,
     category_id: DataTypes.INTEGER,
     unit_id: DataTypes.INTEGER,
+    description: DataTypes.STRING,
   },
   {
     sequelize: instanceMySQL,

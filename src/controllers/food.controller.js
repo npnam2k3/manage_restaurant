@@ -12,6 +12,7 @@ class FoodController {
     if (req.file) {
       data.fileImage = req.file;
     }
+
     const response = await FoodService.createFood(data);
     new Created(
       MESSAGES.SUCCESS.CREATED,
