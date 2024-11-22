@@ -76,7 +76,7 @@ const MESSAGES = {
     PHONE_NUMBER_EXISTS: "Phone number already exists",
   },
   TABLE: {
-    TABLE_ID: "Table ID is required",
+    TABLE_ID: "Invalid table id",
     EXISTS: "Table already exists",
     NOT_FOUND: "Table not found",
     BOOKING_FAIL: "Booking table failure - Somethings went wrong",

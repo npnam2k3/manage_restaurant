@@ -38,15 +38,22 @@ class TableService {
     });
   };
 
-  static bookingTable = async (tableId, { customer_name, phone_number }) => {
-    if (!tableId)
+  static bookingTable = async ({ listTable, customer_name, phone_number }) => {
+    const listIdTable = listTable.map((table) => table.id);
+    const countIdTable = await Table.count({
+      where: {
+        id: {
+          [Op.in]: listIdTable,
+        },
+      },
+    });
+    if (countIdTable < listTable.length) {
       throw new MissingInputError(
         MESSAGES.ERROR.INVALID_INPUT,
         HTTP_STATUS_CODE.UNPROCESSABLE_ENTITY,
         MESSAGES.TABLE.TABLE_ID
       );
-    const tableExists = await Table.findByPk(tableId);
-    if (!tableExists) throw new NotFoundError(MESSAGES.TABLE.NOT_FOUND);
+    }
     // kiểm tra thông tin khách hàng đã tồn tại trong db chưa
     const customerExists = await Customer.findOne({
       where: {
@@ -74,7 +81,9 @@ class TableService {
       },
       {
         where: {
-          id: tableId,
+          id: {
+            [Op.in]: listIdTable,
+          },
         },
       }
     );
@@ -204,30 +213,30 @@ class TableService {
     return data;
   };
 
-  static orderFoodByTable = async ({ tableId, listFood }) => {
-    const tableExists = await Table.findOne({
-      where: {
-        id: tableId,
-      },
-    });
-    if (!tableExists) {
-      throw new NotFoundError(MESSAGES.TABLE.NOT_FOUND);
-    }
-    // luu vao bang table_food_menu
-    if (listFood.length <= 0) {
-      throw new OperationFailureError(MESSAGES.TABLE.ORDER_FOOD_FAIL);
-    }
-    const dataToInsert = listFood.map((food) => ({
-      table_id: tableId,
-      food_menu_id: food.id,
-      quantity: food.quantity,
-    }));
-    const createRecords = await Table_FoodMenu.bulkCreate(dataToInsert);
-    // console.log("check data insert::", createRecords.length);
-    if (createRecords.length === 0)
-      throw new OperationFailureError(MESSAGES.TABLE.ORDER_FOOD_FAIL);
-    return MESSAGES.TABLE.ORDER_FOOD_SUCCESS;
-  };
+  // static orderFoodByTable = async ({ tableId, listFood }) => {
+  //   const tableExists = await Table.findOne({
+  //     where: {
+  //       id: tableId,
+  //     },
+  //   });
+  //   if (!tableExists) {
+  //     throw new NotFoundError(MESSAGES.TABLE.NOT_FOUND);
+  //   }
+  //   // luu vao bang table_food_menu
+  //   if (listFood.length <= 0) {
+  //     throw new OperationFailureError(MESSAGES.TABLE.ORDER_FOOD_FAIL);
+  //   }
+  //   const dataToInsert = listFood.map((food) => ({
+  //     table_id: tableId,
+  //     food_menu_id: food.id,
+  //     quantity: food.quantity,
+  //   }));
+  //   const createRecords = await Table_FoodMenu.bulkCreate(dataToInsert);
+  //   // console.log("check data insert::", createRecords.length);
+  //   if (createRecords.length === 0)
+  //     throw new OperationFailureError(MESSAGES.TABLE.ORDER_FOOD_FAIL);
+  //   return MESSAGES.TABLE.ORDER_FOOD_SUCCESS;
+  // };
   static updateOrderFoodByTable = async ({ tableId, listFood }) => {
     const tableExists = await Table.findOne({
       where: {
