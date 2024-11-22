@@ -34,18 +34,18 @@ router.get(
 );
 
 router.patch(
-  "/bookingTable/:tableId",
+  "/bookingTable",
   checkPermissions(PERMISSIONS.TABLE.UPDATE),
   validateMiddleware(tableBookingSchema),
   asyncHandle(TableController.bookingTable)
 );
 
-router.post(
-  "/orderFoodByTable",
-  checkPermissions(PERMISSIONS.TABLE.UPDATE),
-  validateMiddleware(orderFoodSchema),
-  asyncHandle(TableController.orderFoodByTable)
-);
+// router.post(
+//   "/orderFoodByTable",
+//   checkPermissions(PERMISSIONS.TABLE.UPDATE),
+//   validateMiddleware(orderFoodSchema),
+//   asyncHandle(TableController.orderFoodByTable)
+// );
 router.post(
   "/updateOrderFoodByTable",
   checkPermissions(PERMISSIONS.TABLE.UPDATE),
