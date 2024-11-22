@@ -27,18 +27,21 @@ class FoodService {
     }
     let image_url = "";
     if (data.fileImage) image_url = data.fileImage.path;
+    let description = "";
+    if (data.description) description = data.description;
     const foodNew = await FoodMenu.create({
       name: data.name,
       image_url,
       price: data.price,
       category_id: data.category_id,
       unit_id: data.unit_id,
+      description,
     });
     if (!foodNew) {
       throw new OperationFailureError(MESSAGES.OPERATION_FAILED.CREATE_FAILURE);
     }
     return getInfoData({
-      fields: ["id", "name", "image_url", "price"],
+      fields: ["id", "name", "image_url", "price", "description"],
       object: foodNew,
     });
   };
@@ -83,7 +86,7 @@ class FoodService {
       throw new NotFoundError(MESSAGES.FOOD.NOT_FOUND);
     }
     const data = getInfoData({
-      fields: ["id", "name", "image_url", "price"],
+      fields: ["id", "name", "image_url", "price", "description"],
       object: foodExists,
     });
     data.unit = foodExists.Unit.name;
@@ -105,7 +108,6 @@ class FoodService {
         name: { [Op.substring]: keyword },
       };
     }
-    console.log("check query::", queries);
     const { count, rows } = await FoodMenu.findAndCountAll({
       ...queries,
       include: [
@@ -125,7 +127,7 @@ class FoodService {
     if (count > 0) {
       const listFoods = rows.map((food) => {
         const data = getInfoData({
-          fields: ["id", "name", "image_url", "price"],
+          fields: ["id", "name", "image_url", "price", "description"],
           object: food,
         });
         data.unit = food.Unit.name;
@@ -189,7 +191,7 @@ class FoodService {
     if (count > 0) {
       const listFoods = rows.map((food) => {
         const data = getInfoData({
-          fields: ["id", "name", "image_url", "price"],
+          fields: ["id", "name", "image_url", "price", "description"],
           object: food,
         });
         data.unit = food.Unit.name;
