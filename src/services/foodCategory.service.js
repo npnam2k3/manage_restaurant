@@ -64,19 +64,36 @@ class FoodCategoryService {
     };
   };
 
-  static getAll = async () => {
+  static getAll = async ({ page, limit }) => {
+    const queries = {
+      offset: (page - 1) * limit,
+      limit,
+    };
     const { count, rows } = await FoodCategory.findAndCountAll({
+      ...queries,
       raw: true,
     });
-    const list = rows.map((item) =>
-      getInfoData({
-        fields: ["id", "name"],
-        object: item,
-      })
-    );
+    if (count > 0) {
+      const list = rows.map((item) =>
+        getInfoData({
+          fields: ["id", "name"],
+          object: item,
+        })
+      );
+      return {
+        total: list.length,
+        page,
+        limit,
+        totalPage: Math.ceil(count / limit),
+        list,
+      };
+    }
     return {
-      total: count,
-      list,
+      total: 0,
+      page,
+      limit,
+      totalPages: 0,
+      list: [],
     };
   };
 
