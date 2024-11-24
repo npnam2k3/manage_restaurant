@@ -100,6 +100,16 @@ const MESSAGES = {
   PERMISSION: {
     DENIED: "You don't have permission to access!",
   },
+  DISCOUNT: {
+    EXISTS: "Discount already exists",
+    NOT_FOUND: "Discount not found",
+    INVALID: "Discount invalid",
+    MAX_PERCENTAGE:
+      "The discount value by percentage must be less than or equal to 70%",
+    MIN_AMOUNT:
+      "The discount value in cash must be greater than or equal to 50K",
+    ID: "Discount id is required",
+  },
 };
 // Response Types
 const RESPONSE_TYPE = {
