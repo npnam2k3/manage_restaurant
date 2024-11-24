@@ -85,6 +85,17 @@ class ForbiddenError extends ErrorResponse {
   }
 }
 
+class DiscountInvalid extends ErrorResponse {
+  constructor(
+    message = MESSAGES.DISCOUNT.INVALID,
+    status = HTTP_STATUS_CODE.BAD_REQUEST,
+    details = {}
+  ) {
+    super(message, status);
+    this.details = details;
+  }
+}
+
 module.exports = {
   ConflictRequestError,
   BadRequestError,
@@ -94,4 +105,5 @@ module.exports = {
   OperationFailureError,
   ServerError,
   ForbiddenError,
+  DiscountInvalid,
 };
