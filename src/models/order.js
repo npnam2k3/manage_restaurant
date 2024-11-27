@@ -9,14 +9,17 @@ class Order extends Model {
    */
   static associate(models) {
     // define association here
-    Order.belongsToMany(models.FoodMenu, { through: "OrderItem" });
-    Order.belongsTo(models.Discount);
+    Order.belongsToMany(models.FoodMenu, {
+      through: "OrderItem",
+      foreignKey: "order_id",
+    });
+    Order.belongsTo(models.Table, { foreignKey: "table_id" });
+    Order.belongsTo(models.Discount, { foreignKey: "discount_id" });
   }
 }
 Order.init(
   {
     table_id: DataTypes.INTEGER,
-    status: DataTypes.ENUM("paid", "unpaid"),
     discount_id: DataTypes.INTEGER,
     total_price: DataTypes.BIGINT,
   },

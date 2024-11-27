@@ -8,7 +8,8 @@ class OrderItem extends Model {
    * The `models/index` file will call this method automatically.
    */
   static associate(models) {
-    // define association here
+    OrderItem.belongsTo(models.FoodMenu, { foreignKey: "food_menu_id" });
+    OrderItem.belongsTo(models.Order, { foreignKey: "order_id" });
   }
 }
 OrderItem.init(

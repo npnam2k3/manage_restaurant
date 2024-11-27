@@ -34,15 +34,8 @@ class TableController {
     ).send(res);
   };
 
-  // static orderFoodByTable = async (req, res) => {
-  //   const response = await TableService.orderFoodByTable(req.validatedData);
-  //   new SuccessResponse(response, HTTP_STATUS_CODE.OK).send(res);
-  // };
-
-  static updateOrderFoodByTable = async (req, res) => {
-    const response = await TableService.updateOrderFoodByTable(
-      req.validatedData
-    );
+  static orderFoodByTable = async (req, res) => {
+    const response = await TableService.orderFoodByTable(req.validatedData);
     new SuccessResponse(response, HTTP_STATUS_CODE.OK).send(res);
   };
 
@@ -54,6 +47,22 @@ class TableController {
       HTTP_STATUS_CODE.OK,
       response
     ).send(res);
+  };
+
+  static getListFoodByTable = async (req, res) => {
+    const response = await TableService.getListFoodByTable(req.validatedData);
+    new SuccessResponse(
+      MESSAGES.SUCCESS.GET,
+      HTTP_STATUS_CODE.OK,
+      response
+    ).send(res);
+  };
+
+  static updateListFoodByTable = async (req, res) => {
+    const response = await TableService.updateListFoodByTable(
+      req.validatedData
+    );
+    new SuccessResponse(response).send(res);
   };
 }
 
