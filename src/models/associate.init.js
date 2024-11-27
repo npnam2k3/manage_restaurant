@@ -9,6 +9,7 @@ const Table = require("../models/table");
 const Customer = require("../models/customer");
 const Order = require("../models/order");
 const Discount = require("../models/discount");
+const OrderItem = require("../models/order_item");
 
 // Tạo một đối tượng chứa tất cả các mô hình
 const models = {
@@ -22,6 +23,7 @@ const models = {
   Customer,
   Order,
   Discount,
+  OrderItem,
 };
 
 // Gọi phương thức associate cho từng mô hình nếu nó tồn tại

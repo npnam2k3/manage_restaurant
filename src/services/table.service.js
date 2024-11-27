@@ -213,31 +213,7 @@ class TableService {
     return data;
   };
 
-  // static orderFoodByTable = async ({ tableId, listFood }) => {
-  //   const tableExists = await Table.findOne({
-  //     where: {
-  //       id: tableId,
-  //     },
-  //   });
-  //   if (!tableExists) {
-  //     throw new NotFoundError(MESSAGES.TABLE.NOT_FOUND);
-  //   }
-  //   // luu vao bang table_food_menu
-  //   if (listFood.length <= 0) {
-  //     throw new OperationFailureError(MESSAGES.TABLE.ORDER_FOOD_FAIL);
-  //   }
-  //   const dataToInsert = listFood.map((food) => ({
-  //     table_id: tableId,
-  //     food_menu_id: food.id,
-  //     quantity: food.quantity,
-  //   }));
-  //   const createRecords = await Table_FoodMenu.bulkCreate(dataToInsert);
-  //   // console.log("check data insert::", createRecords.length);
-  //   if (createRecords.length === 0)
-  //     throw new OperationFailureError(MESSAGES.TABLE.ORDER_FOOD_FAIL);
-  //   return MESSAGES.TABLE.ORDER_FOOD_SUCCESS;
-  // };
-  static updateOrderFoodByTable = async ({ tableId, listFood }) => {
+  static orderFoodByTable = async ({ tableId, listFood }) => {
     const tableExists = await Table.findOne({
       where: {
         id: tableId,
@@ -265,7 +241,145 @@ class TableService {
         await record.increment("quantity", { by: food.quantity });
       }
     }
+    return MESSAGES.TABLE.ORDER_FOOD_SUCCESS;
+  };
+
+  static validateListTable = async (listTables) => {
+    const listIdTable = listTables.map((table) => table.id);
+    const countIdTable = await Table.count({
+      where: {
+        id: {
+          [Op.in]: listIdTable,
+        },
+        status: "occupied",
+      },
+    });
+    if (countIdTable < listTables.length) {
+      throw new MissingInputError(
+        MESSAGES.ERROR.INVALID_INPUT,
+        HTTP_STATUS_CODE.UNPROCESSABLE_ENTITY,
+        { tableId: MESSAGES.TABLE.TABLE_ID }
+      );
+    }
+    return listIdTable;
+  };
+  // Khi nhấn nút tạo hóa đơn sẽ lấy ra danh sách các món theo bàn
+  static getListFoodByTable = async ({ listTables }) => {
+    let listIdTable;
+    try {
+      listIdTable = await this.validateListTable(listTables);
+    } catch (error) {
+      throw error;
+    }
+
+    const listTable = await Table.findAll({
+      where: {
+        id: {
+          [Op.in]: listIdTable,
+        },
+      },
+      include: [
+        {
+          model: FoodMenu,
+          through: {
+            attributes: ["quantity"],
+          },
+          attributes: ["id", "name", "image_url", "price"],
+          include: [
+            {
+              model: Unit,
+              attributes: ["name"],
+            },
+          ],
+        },
+      ],
+      raw: true,
+      nest: true,
+    });
+    const data = listTable.map((table) => {
+      return {
+        tableId: table.id,
+        number: table.number,
+        status: table.status,
+        customer_id: table.customer_id,
+        seat_number: table.seat_number,
+        listFoods: table.FoodMenus
+          ? [
+              {
+                id: table.FoodMenus.id,
+                name: table.FoodMenus.name,
+                image_url: table.FoodMenus.image_url,
+                price: table.FoodMenus.price,
+                quantity: table.FoodMenus.Table_FoodMenu
+                  ? table.FoodMenus.Table_FoodMenu.quantity
+                  : 0,
+                unit: table.FoodMenus?.Unit?.name,
+              },
+            ]
+          : [],
+      };
+    });
+
+    // Gộp các món ăn có cùng tableId
+    const groupedData = data.reduce((acc, curr) => {
+      const existingTable = acc.find((item) => item.tableId === curr.tableId);
+      if (existingTable) {
+        existingTable.listFoods.push(...curr.listFoods);
+      } else {
+        acc.push(curr);
+      }
+      return acc;
+    }, []);
+
+    return groupedData;
+  };
+
+  static updateListFoodByTable = async (listTables) => {
+    const listIdTable = listTables.map((table) => table.tableId);
+    const countIdTable = await Table.count({
+      where: {
+        id: {
+          [Op.in]: listIdTable,
+        },
+        status: "occupied",
+      },
+    });
+
+    if (countIdTable < listTables.length) {
+      throw new MissingInputError(
+        MESSAGES.ERROR.INVALID_INPUT,
+        HTTP_STATUS_CODE.UNPROCESSABLE_ENTITY,
+        { tableId: MESSAGES.TABLE.TABLE_ID }
+      );
+    }
+    for (let table of listTables) {
+      for (let food of table.listFoods) {
+        const [record, created] = await Table_FoodMenu.findOrCreate({
+          where: {
+            table_id: table.tableId,
+            food_menu_id: food.id,
+          },
+          defaults: {
+            quantity: food.quantity,
+          },
+        });
+
+        if (!created) {
+          await record.update({ quantity: food.quantity });
+        }
+      }
+    }
     return MESSAGES.TABLE.UPDATE_ORDER_FOOD_SUCCESS;
+  };
+
+  static deleteTableFoodMenuById = async (listIdTableFoodMenu) => {
+    await Table_FoodMenu.destroy({
+      where: {
+        id: {
+          [Op.in]: listIdTableFoodMenu,
+        },
+      },
+    });
   };
 }
 

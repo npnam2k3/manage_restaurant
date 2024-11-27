@@ -7,6 +7,8 @@ const validateMiddleware = require("../../middlewares/validate.middleware");
 const tableSchema = require("../../validations/tableSchema");
 const tableBookingSchema = require("../../validations/tableBookingSchema");
 const orderFoodSchema = require("../../validations/orderFoodSchema");
+const listIdTableSchema = require("../../validations/listIdTableSchema");
+const listFoodTableSchema = require("../../validations/updateListFoodByTableSchema");
 const checkPermissions = require("../../middlewares/check_permission.middleware");
 const { PERMISSIONS } = require("../../core/constant.permission");
 const {
@@ -40,17 +42,24 @@ router.patch(
   asyncHandle(TableController.bookingTable)
 );
 
-// router.post(
-//   "/orderFoodByTable",
-//   checkPermissions(PERMISSIONS.TABLE.UPDATE),
-//   validateMiddleware(orderFoodSchema),
-//   asyncHandle(TableController.orderFoodByTable)
-// );
 router.post(
-  "/updateOrderFoodByTable",
+  "/orderFoodByTable",
   checkPermissions(PERMISSIONS.TABLE.UPDATE),
   validateMiddleware(orderFoodSchema),
-  asyncHandle(TableController.updateOrderFoodByTable)
+  asyncHandle(TableController.orderFoodByTable)
+);
+
+router.post(
+  "/getListFoodByTable",
+  checkPermissions(PERMISSIONS.TABLE.UPDATE),
+  validateMiddleware(listIdTableSchema),
+  asyncHandle(TableController.getListFoodByTable)
+);
+router.post(
+  "/updateFoodTable",
+  checkPermissions(PERMISSIONS.TABLE.UPDATE),
+  validateMiddleware(listFoodTableSchema),
+  asyncHandle(TableController.updateListFoodByTable)
 );
 
 export default router;

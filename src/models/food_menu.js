@@ -10,7 +10,10 @@ class FoodMenu extends Model {
    */
   static associate(models) {
     // define association here
-    FoodMenu.belongsToMany(Order, { through: "OrderItem" });
+    FoodMenu.belongsToMany(Order, {
+      through: "OrderItem",
+      foreignKey: "food_menu_id",
+    });
     FoodMenu.belongsTo(models.FoodCategory, { foreignKey: "category_id" });
     FoodMenu.belongsTo(models.Unit, { foreignKey: "unit_id" });
     FoodMenu.belongsToMany(models.Table, {
