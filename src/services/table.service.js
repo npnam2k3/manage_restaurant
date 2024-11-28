@@ -3,7 +3,10 @@ const Table = require("../models/table");
 const Customer = require("../models/customer");
 const FoodMenu = require("../models/food_menu");
 const FoodCategory = require("../models/food_category");
+const Table_FoodMenu = require("../models/table_foodMenu");
 const Unit = require("../models/unit");
+const TableCustomer = require("../models/table_customer");
+
 const { MESSAGES, HTTP_STATUS_CODE } = require("../core/constant.response");
 const {
   ConflictRequestError,
@@ -13,7 +16,6 @@ const {
 } = require("../core/error.response");
 const { getInfoData } = require("../utils/index");
 const { Op } = require("sequelize");
-const Table_FoodMenu = require("../models/table_foodMenu");
 
 class TableService {
   static createTable = async (data) => {
@@ -26,33 +28,23 @@ class TableService {
     const tableNew = await Table.create({
       number: data.number,
       seat_number: data.seat_number,
-      customer_id: null,
       status: "available",
     });
     if (!tableNew) {
       throw new OperationFailureError(MESSAGES.OPERATION_FAILED.CREATE_FAILURE);
     }
     return getInfoData({
-      fields: ["id", "number", "status", "customer_id", "seat_number"],
+      fields: ["id", "number", "status", "seat_number"],
       object: tableNew,
     });
   };
 
   static bookingTable = async ({ listTable, customer_name, phone_number }) => {
-    const listIdTable = listTable.map((table) => table.id);
-    const countIdTable = await Table.count({
-      where: {
-        id: {
-          [Op.in]: listIdTable,
-        },
-      },
-    });
-    if (countIdTable < listTable.length) {
-      throw new MissingInputError(
-        MESSAGES.ERROR.INVALID_INPUT,
-        HTTP_STATUS_CODE.UNPROCESSABLE_ENTITY,
-        MESSAGES.TABLE.TABLE_ID
-      );
+    let listIdTable;
+    try {
+      listIdTable = await this.validateListTable(listTable, "available");
+    } catch (error) {
+      throw error;
     }
     // kiểm tra thông tin khách hàng đã tồn tại trong db chưa
     const customerExists = await Customer.findOne({
@@ -73,11 +65,10 @@ class TableService {
     } else {
       customer_id = customerExists.id;
     }
-    // neu ton tai => update customer_id va status trong Tables
+    // neu ton tai => update customer_id trong Table_Customer
     const [rowUpdated] = await Table.update(
       {
         status: "occupied",
-        customer_id,
       },
       {
         where: {
@@ -87,6 +78,14 @@ class TableService {
         },
       }
     );
+
+    const listTableCustomerInsert = listIdTable.map((tableId) => {
+      return {
+        table_id: tableId,
+        customer_id,
+      };
+    });
+    await TableCustomer.bulkCreate(listTableCustomerInsert);
     if (rowUpdated === 0)
       throw new OperationFailureError(MESSAGES.TABLE.BOOKING_FAIL);
     return MESSAGES.TABLE.BOOKING_SUCCESSFULLY;
@@ -120,17 +119,18 @@ class TableService {
       nest: true,
     });
     let listTables = [];
+
     if (count > 0) {
       listTables = rows.map((table) => {
         const data = getInfoData({
           fields: ["id", "number", "status", "seat_number"],
           object: table,
         });
-        if (table.Customer?.full_name && table.Customer?.phone_number) {
+        if (table.Customers?.full_name && table.Customers?.phone_number) {
           data.customer = {
-            customer_id: table.Customer.id,
-            full_name: table.Customer.full_name,
-            phone_number: table.Customer.phone_number,
+            customer_id: table.Customers.id,
+            full_name: table.Customers.full_name,
+            phone_number: table.Customers.phone_number,
           };
         }
         return data;
@@ -178,7 +178,7 @@ class TableService {
         },
         {
           model: Customer,
-          attributes: ["id", "full_name", "phone_number"],
+          through: {},
         },
       ],
       raw: false,
@@ -204,10 +204,10 @@ class TableService {
         };
       });
     }
-    if (tableExists.Customer) {
+    if (tableExists.Customers) {
       data.customer = {
-        full_name: tableExists.Customer.full_name,
-        phone_number: tableExists.Customer.phone_number,
+        full_name: tableExists.Customers[0]?.full_name,
+        phone_number: tableExists.Customers[0]?.phone_number,
       };
     }
     return data;
@@ -244,14 +244,14 @@ class TableService {
     return MESSAGES.TABLE.ORDER_FOOD_SUCCESS;
   };
 
-  static validateListTable = async (listTables) => {
+  static validateListTable = async (listTables, status) => {
     const listIdTable = listTables.map((table) => table.id);
     const countIdTable = await Table.count({
       where: {
         id: {
           [Op.in]: listIdTable,
         },
-        status: "occupied",
+        status,
       },
     });
     if (countIdTable < listTables.length) {
@@ -267,7 +267,7 @@ class TableService {
   static getListFoodByTable = async ({ listTables }) => {
     let listIdTable;
     try {
-      listIdTable = await this.validateListTable(listTables);
+      listIdTable = await this.validateListTable(listTables, "occupied");
     } catch (error) {
       throw error;
     }
@@ -292,16 +292,22 @@ class TableService {
             },
           ],
         },
+        {
+          model: Customer,
+        },
       ],
       raw: true,
       nest: true,
     });
+    // console.log("check list table::", listTable);
     const data = listTable.map((table) => {
       return {
         tableId: table.id,
         number: table.number,
         status: table.status,
-        customer_id: table.customer_id,
+        customer_id: table.Customers?.id,
+        customer_name: table.Customers?.full_name,
+        phone_number: table.Customers.phone_number,
         seat_number: table.seat_number,
         listFoods: table.FoodMenus
           ? [

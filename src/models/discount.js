@@ -9,7 +9,10 @@ class Discount extends Model {
    */
   static associate(models) {
     // define association here
-    Discount.belongsToMany(models.Customer, { through: "CustomerDiscount" });
+    Discount.belongsToMany(models.Customer, {
+      through: "CustomerDiscount",
+      foreignKey: "discount_id",
+    });
     Discount.hasMany(models.Order, { foreignKey: "discount_id" });
   }
 }

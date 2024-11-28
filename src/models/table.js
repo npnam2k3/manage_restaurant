@@ -9,7 +9,10 @@ class Table extends Model {
    */
   static associate(models) {
     // define association here
-    Table.belongsTo(models.Customer, { foreignKey: "customer_id" });
+    Table.belongsToMany(models.Customer, {
+      through: "Table_Customer",
+      foreignKey: "table_id",
+    });
     Table.hasOne(models.Order, { foreignKey: "table_id" });
     Table.belongsToMany(models.FoodMenu, {
       through: "Table_FoodMenu",
@@ -24,13 +27,13 @@ Table.init(
     // reserved: da dat truoc
     // available: con trong
     // occupied: dang co khach ngoi
-    customer_id: DataTypes.INTEGER,
     seat_number: DataTypes.INTEGER,
   },
   {
     sequelize: instanceMySQL,
     paranoid: true,
     modelName: "Table",
+    tableName: "Tables",
   }
 );
 module.exports = Table;

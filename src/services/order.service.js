@@ -18,7 +18,10 @@ class OrderService {
   static createOrder = async ({ listTables }) => {
     let listIdTable;
     try {
-      listIdTable = await TableService.validateListTable(listTables);
+      listIdTable = await TableService.validateListTable(
+        listTables,
+        "occupied"
+      );
     } catch (error) {
       throw error;
     }
