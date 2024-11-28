@@ -83,12 +83,15 @@ class UserService {
     }
     const updateDataClone = { ...dataUpdate };
     if (updateDataClone.phone_number) {
-      const phoneExists = await User.findOne({
+      const phoneExists = await User.count({
         where: {
           phone_number: updateDataClone.phone_number,
+          id: {
+            [Op.ne]: userId,
+          },
         },
       });
-      if (phoneExists) {
+      if (phoneExists > 0) {
         const error = {
           phone_number: MESSAGES.USER.PHONE_NUMBER_EXISTS,
         };
