@@ -1,5 +1,9 @@
 "use strict";
 const Discount = require("../models/discount");
+const Order = require("../models/order");
+const Table = require("../models/table");
+const Customer = require("../models/customer");
+
 const { HTTP_STATUS_CODE, MESSAGES } = require("../core/constant.response");
 const {
   ConflictRequestError,
@@ -10,6 +14,7 @@ const {
 } = require("../core/error.response");
 const { getInfoData } = require("../utils/index");
 const getDateTime = require("../utils/getDatetime");
+const { Op } = require("sequelize");
 
 class DiscountService {
   static DISCOUNT_TYPE = {
@@ -60,8 +65,8 @@ class DiscountService {
       start_date: data.start_date,
       end_date: data.end_date,
       is_anniversary: data.is_anniversary,
-      purchased_orders_count: data.purchased_orders_count || null,
-      purchased_amount_per_order: data.purchased_amount_per_order || null,
+      is_loyalty_customer: data.is_loyalty_customer || null,
+      total_money_spent: data.total_money_spent || null,
     });
     if (!newDiscount)
       throw new OperationFailureError(MESSAGES.OPERATION_FAILED.CREATE_FAILURE);
@@ -74,8 +79,8 @@ class DiscountService {
         "discount_type",
         "min_order_value",
         "is_anniversary",
-        "purchased_orders_count",
-        "purchased_amount_per_order",
+        "is_loyalty_customer",
+        "total_money_spent",
       ],
       object: newDiscount,
     });
@@ -133,8 +138,8 @@ class DiscountService {
             "discount_type",
             "min_order_value",
             "is_anniversary",
-            "purchased_orders_count",
-            "purchased_amount_per_order",
+            "total_money_spent",
+            "is_loyalty_customer",
           ],
           object: discount,
         });
@@ -172,8 +177,8 @@ class DiscountService {
         "discount_type",
         "min_order_value",
         "is_anniversary",
-        "purchased_orders_count",
-        "purchased_amount_per_order",
+        "is_loyalty_customer",
+        "total_money_spent",
       ],
       object: discountExists,
     });

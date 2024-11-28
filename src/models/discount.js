@@ -23,8 +23,8 @@ Discount.init(
     start_date: DataTypes.DATE,
     end_date: DataTypes.DATE,
     is_anniversary: DataTypes.BOOLEAN,
-    purchased_orders_count: DataTypes.INTEGER,
-    purchased_amount_per_order: DataTypes.INTEGER,
+    is_loyalty_customer: DataTypes.BOOLEAN,
+    total_money_spent: DataTypes.INTEGER,
   },
   {
     sequelize: instanceMySQL,

@@ -18,7 +18,6 @@ Customer.init(
   {
     full_name: DataTypes.STRING,
     phone_number: DataTypes.STRING,
-    order_count: DataTypes.INTEGER,
   },
   {
     sequelize: instanceMySQL,
