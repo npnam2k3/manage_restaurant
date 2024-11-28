@@ -40,12 +40,16 @@ class CustomerService {
       throw new NotFoundError(MESSAGES.CUSTOMER.NOT_FOUND);
     }
     if (dataUpdate.phone_number) {
-      const phoneExists = await Customer.findOne({
+      const phoneExists = await Customer.count({
         where: {
           phone_number: dataUpdate.phone_number,
+          id: {
+            [Op.ne]: customerId,
+          },
         },
       });
-      if (phoneExists) {
+
+      if (phoneExists > 0) {
         const err = {
           phone_number: MESSAGES.CUSTOMER.PHONE_NUMBER_EXISTS,
         };

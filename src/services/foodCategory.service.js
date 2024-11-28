@@ -1,10 +1,11 @@
 "use strict";
 const FoodCategory = require("../models/food_category");
-const { MESSAGES } = require("../core/constant.response");
+const { MESSAGES, HTTP_STATUS_CODE } = require("../core/constant.response");
 const {
   ConflictRequestError,
   OperationFailureError,
   NotFoundError,
+  MissingInputError,
 } = require("../core/error.response");
 const { getInfoData } = require("../utils/index");
 const FoodService = require("../services/food.service");
@@ -33,6 +34,13 @@ class FoodCategoryService {
     const foodCategoryExists = await FoodCategory.findByPk(foodCategoryId);
     if (!foodCategoryExists)
       throw new NotFoundError(MESSAGES.FOOD_CATEGORY.NOT_FOUND);
+    if (dataUpdate.name === foodCategoryExists.name) {
+      throw new MissingInputError(
+        MESSAGES.ERROR.CONFLICT,
+        HTTP_STATUS_CODE.CONFLICT,
+        { name: MESSAGES.FOOD_CATEGORY.EXISTS }
+      );
+    }
     const [rowUpdated] = await FoodCategory.update(dataUpdate, {
       where: {
         id: foodCategoryId,
