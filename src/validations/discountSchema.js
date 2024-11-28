@@ -40,15 +40,13 @@ const discountSchema = Joi.object({
     "boolean.base": "Is anniversary must be a boolean value",
     "any.required": "Is anniversary is required",
   }),
-  purchased_orders_count: Joi.number().integer().min(0).messages({
-    "number.base": "Purchased orders count must be a number",
-    "number.integer": "Purchased orders count must be an integer",
-    "number.min": "Purchased orders count must be at least 0",
+  is_loyalty_customer: Joi.boolean().messages({
+    "boolean.base": "Is loyalty customer must be a boolean value",
   }),
-  purchased_amount_per_order: Joi.number().integer().min(0).messages({
-    "number.base": "Purchased amount per order must be a number",
-    "number.integer": "Purchased amount per order must be an integer",
-    "number.min": "Purchased amount per order must be at least 0",
+  total_money_spent: Joi.number().integer().min(0).messages({
+    "number.base": "Total money spent must be a number",
+    "number.integer": "Total money spent must be an integer",
+    "number.min": "Total money spent must be at least 0",
   }),
 });
 
