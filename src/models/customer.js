@@ -10,8 +10,14 @@ class Customer extends Model {
    */
   static associate(models) {
     // define association here
-    Customer.hasMany(models.Table, { foreignKey: "customer_id" });
-    Customer.belongsToMany(models.Discount, { through: "CustomerDiscount" });
+    Customer.belongsToMany(models.Table, {
+      through: "Table_Customer",
+      foreignKey: "customer_id",
+    });
+    Customer.belongsToMany(models.Discount, {
+      through: "CustomerDiscount",
+      foreignKey: "customer_id",
+    });
   }
 }
 Customer.init(
@@ -23,6 +29,7 @@ Customer.init(
     sequelize: instanceMySQL,
     paranoid: true,
     modelName: "Customer",
+    tableName: "Customers",
   }
 );
 module.exports = Customer;
