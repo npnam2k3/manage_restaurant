@@ -26,22 +26,41 @@ const discountSchema = Joi.object({
     "number.integer": "Min order value must be an integer",
     "number.min": "Min order value must be at least 0",
   }),
-  start_date: Joi.date().min("now").required().messages({
-    "date.base": "Start date must be a valid date and time",
-    "date.min": "Start date must be greater than or equal to the current date",
-    "any.required": "Start date is required",
-  }),
+  // start_date: Joi.date().greater("now").required().messages({
+  //   "date.base": "Start date must be a valid date and time",
+  //   "date.greater":
+  //     "Start date must be greater than or equal to the current date",
+  //   "any.required": "Start date is required",
+  // }),
+  start_date: Joi.date()
+    .custom((value, helpers) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Đặt giờ, phút, giây, mili giây về 0
+      if (value < today) {
+        return helpers.error("date.greater", {
+          message:
+            "Start date must be greater than or equal to the current date",
+        });
+      }
+      return value; // Trả về giá trị hợp lệ
+    })
+    .required()
+    .messages({
+      "date.base": "Start date must be a valid date and time",
+      "any.required": "Start date is required",
+    }),
   end_date: Joi.date().greater(Joi.ref("start_date")).required().messages({
     "date.base": "End date must be a valid date and time",
     "date.greater": "End date must be greater than start date",
     "any.required": "End date is required",
   }),
-  is_anniversary: Joi.boolean().required().messages({
-    "boolean.base": "Is anniversary must be a boolean value",
+  is_anniversary: Joi.number().required().messages({
+    "number.base": "Is anniversary must be a number",
     "any.required": "Is anniversary is required",
   }),
-  is_loyalty_customer: Joi.boolean().messages({
-    "boolean.base": "Is loyalty customer must be a boolean value",
+  is_loyalty_customer: Joi.number().required().messages({
+    "number.base": "Is loyalty customer must be a number",
+    "any.required": "Is loyalty customer is required",
   }),
   total_money_spent: Joi.number().integer().min(0).messages({
     "number.base": "Total money spent must be a number",

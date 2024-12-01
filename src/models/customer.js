@@ -14,6 +14,7 @@ class Customer extends Model {
       through: "Table_Customer",
       foreignKey: "customer_id",
     });
+    Customer.hasMany(models.Order, { foreignKey: "customer_id" });
     Customer.belongsToMany(models.Discount, {
       through: "CustomerDiscount",
       foreignKey: "customer_id",

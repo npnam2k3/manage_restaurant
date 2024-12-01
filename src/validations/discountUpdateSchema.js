@@ -17,19 +17,18 @@ const discountUpdateSchema = Joi.object({
     "number.integer": "Min order value must be an integer",
     "number.min": "Min order value must be at least 0",
   }),
-  start_date: Joi.date().min("now").messages({
+  start_date: Joi.date().messages({
     "date.base": "Start date must be a valid date and time",
-    "date.min": "Start date must be greater than or equal to the current date",
   }),
   end_date: Joi.date().greater(Joi.ref("start_date")).messages({
     "date.base": "End date must be a valid date and time",
     "date.greater": "End date must be greater than start date",
   }),
-  is_anniversary: Joi.boolean().messages({
-    "boolean.base": "Is anniversary must be a boolean value",
+  is_anniversary: Joi.number().messages({
+    "number.base": "Is anniversary must be a number",
   }),
-  is_loyalty_customer: Joi.boolean().messages({
-    "boolean.base": "Is loyalty customer must be a boolean value",
+  is_loyalty_customer: Joi.number().messages({
+    "number.base": "Is loyalty customer must be a number",
   }),
   total_money_spent: Joi.number().integer().min(0).messages({
     "number.base": "Total money spent must be a number",

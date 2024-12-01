@@ -13,6 +13,10 @@ class Discount extends Model {
       through: "CustomerDiscount",
       foreignKey: "discount_id",
     });
+    Discount.belongsToMany(models.Order, {
+      through: "OrderDiscount",
+      foreignKey: "discount_id",
+    });
     Discount.hasMany(models.Order, { foreignKey: "discount_id" });
   }
 }
@@ -25,8 +29,8 @@ Discount.init(
     min_order_value: DataTypes.INTEGER,
     start_date: DataTypes.DATE,
     end_date: DataTypes.DATE,
-    is_anniversary: DataTypes.BOOLEAN,
-    is_loyalty_customer: DataTypes.BOOLEAN,
+    is_anniversary: DataTypes.TINYINT,
+    is_loyalty_customer: DataTypes.TINYINT,
     total_money_spent: DataTypes.INTEGER,
   },
   {

@@ -109,6 +109,11 @@ const MESSAGES = {
     MIN_AMOUNT:
       "The discount value in cash must be greater than or equal to 50K",
     ID: "Discount id is required",
+    TOTAL_MONEY_SPENT:
+      "The total purchase amount is required when this discount code is for loyal customers.",
+    VALUE_DISCOUNT_LOYALTY_CUS_EXISTS:
+      "The discount with this value for loyal customers already exists",
+    VALUE_DISCOUNT_NORMAL_EXISTS: "The discount with this value already exists",
   },
 };
 // Response Types
