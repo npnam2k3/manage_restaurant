@@ -18,6 +18,11 @@ const { getInfoData } = require("../utils/index");
 const { Op } = require("sequelize");
 
 class TableService {
+  static TABLE_STATUS = {
+    OCCUPIED: "occupied",
+    AVAILABLE: "available",
+    RESERVED: "reserved",
+  };
   static createTable = async (data) => {
     const tableExists = await Table.findOne({
       where: {
@@ -28,7 +33,7 @@ class TableService {
     const tableNew = await Table.create({
       number: data.number,
       seat_number: data.seat_number,
-      status: "available",
+      status: this.TABLE_STATUS.AVAILABLE,
     });
     if (!tableNew) {
       throw new OperationFailureError(MESSAGES.OPERATION_FAILED.CREATE_FAILURE);
@@ -42,7 +47,10 @@ class TableService {
   static bookingTable = async ({ listTable, customer_name, phone_number }) => {
     let listIdTable;
     try {
-      listIdTable = await this.validateListTable(listTable, "available");
+      listIdTable = await this.validateListTable(
+        listTable,
+        this.TABLE_STATUS.AVAILABLE
+      );
     } catch (error) {
       throw error;
     }
@@ -68,7 +76,7 @@ class TableService {
     // neu ton tai => update customer_id trong Table_Customer
     const [rowUpdated] = await Table.update(
       {
-        status: "occupied",
+        status: this.TABLE_STATUS.OCCUPIED,
       },
       {
         where: {
@@ -267,7 +275,10 @@ class TableService {
   static getListFoodByTable = async ({ listTables }) => {
     let listIdTable;
     try {
-      listIdTable = await this.validateListTable(listTables, "occupied");
+      listIdTable = await this.validateListTable(
+        listTables,
+        this.TABLE_STATUS.OCCUPIED
+      );
     } catch (error) {
       throw error;
     }
@@ -347,7 +358,7 @@ class TableService {
         id: {
           [Op.in]: listIdTable,
         },
-        status: "occupied",
+        status: this.TABLE_STATUS.OCCUPIED,
       },
     });
 
@@ -358,6 +369,7 @@ class TableService {
         { tableId: MESSAGES.TABLE.TABLE_ID }
       );
     }
+
     for (let table of listTables) {
       for (let food of table.listFoods) {
         const [record, created] = await Table_FoodMenu.findOrCreate({
@@ -381,11 +393,24 @@ class TableService {
   static deleteTableFoodMenuById = async (listIdTableFoodMenu) => {
     await Table_FoodMenu.destroy({
       where: {
-        id: {
+        table_id: {
           [Op.in]: listIdTableFoodMenu,
         },
       },
     });
+  };
+
+  static updateStatusTable = async (status, listIdTable) => {
+    await Table.update(
+      {
+        status,
+      },
+      {
+        where: {
+          id: { [Op.in]: listIdTable },
+        },
+      }
+    );
   };
 }
 

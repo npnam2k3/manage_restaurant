@@ -13,7 +13,6 @@ class Table extends Model {
       through: "Table_Customer",
       foreignKey: "table_id",
     });
-    Table.hasOne(models.Order, { foreignKey: "table_id" });
     Table.belongsToMany(models.FoodMenu, {
       through: "Table_FoodMenu",
       foreignKey: "table_id",

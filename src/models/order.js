@@ -13,8 +13,11 @@ class Order extends Model {
       through: "OrderItem",
       foreignKey: "order_id",
     });
-    Order.belongsTo(models.Table, { foreignKey: "table_id" });
-    Order.belongsTo(models.Discount, { foreignKey: "discount_id" });
+    Order.belongsTo(models.Customer, { foreignKey: "customer_id" });
+    Order.belongsToMany(models.Discount, {
+      through: "OrderDiscount",
+      foreignKey: "order_id",
+    });
   }
 }
 Order.init(
@@ -22,6 +25,7 @@ Order.init(
     table_id: DataTypes.INTEGER,
     discount_id: DataTypes.INTEGER,
     total_price: DataTypes.BIGINT,
+    customer_id: DataTypes.INTEGER,
   },
   {
     sequelize: instanceMySQL,

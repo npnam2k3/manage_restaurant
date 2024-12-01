@@ -12,7 +12,13 @@ const Order = require("../models/order");
 
 const { Op } = require("sequelize");
 const TableService = require("../services/table.service");
+const DiscountService = require("../services/discount.service");
+
 const Table_FoodMenu = require("../models/table_foodMenu");
+const Customer = require("../models/customer");
+const TableCustomer = require("../models/table_customer");
+const CustomerDiscount = require("../models/customer_discount");
+const OrderDiscount = require("../models/order_discount");
 
 class OrderService {
   static createOrder = async ({ listTables }) => {
@@ -20,154 +26,171 @@ class OrderService {
     try {
       listIdTable = await TableService.validateListTable(
         listTables,
-        "occupied"
+        TableService.TABLE_STATUS.OCCUPIED
       );
     } catch (error) {
       throw error;
     }
 
-    const listTable = await Table.findAll({
+    const listTable = await TableService.getListFoodByTable({ listTables });
+    // console.log("check list table::", listTable);
+
+    const customer = {
+      id: listTable[0].customer_id,
+      customer_name: listTable[0].customer_name,
+      phone_number: listTable[0].phone_number,
+    };
+    // tao hoa don
+    const newOrder = await Order.create({
+      total_price: 0,
+      customer_id: customer.id,
+    });
+
+    // them order item vao bang OrderItem
+    await this.saveOrderItem(listTable, newOrder);
+
+    const totalOrder = this.calcTotalPrice(listTable);
+
+    const { listDiscountForLoyaltyCus, listDiscountNormal } =
+      await DiscountService.classifyDiscount();
+
+    const listDiscountUsed = [];
+    // co discount danh cho khtt
+    let totalSale = 0;
+    if (listDiscountForLoyaltyCus.length > 0) {
+      const listDiscount = await DiscountService.findDiscountOfLoyaltyCustomer(
+        customer.id
+      );
+      const maxItem = DiscountService.findMaxValueDiscountForLoyalCus(
+        listDiscount,
+        totalOrder
+      );
+
+      if (maxItem) {
+        totalSale += maxItem.saleAmount;
+        this.saveOrderDiscount(newOrder.id, maxItem.discountId);
+        // cap nhat lai trang thai discount danh cho customer nay la da su dung
+        await DiscountService.updateStatusDiscountForLoyalCus(
+          customer.id,
+          maxItem.discountId
+        );
+        listDiscountUsed.push(maxItem);
+      }
+    }
+
+    if (listDiscountNormal.length > 0) {
+      const listDiscount = listDiscountNormal.filter(
+        (item) => item.min_order_value <= totalOrder
+      );
+      const maxItem = DiscountService.findMaxValueDiscountNormal(
+        listDiscount,
+        totalOrder
+      );
+      if (maxItem) {
+        totalSale += maxItem.saleAmount;
+        this.saveOrderDiscount(newOrder.id, maxItem.discountId);
+        listDiscountUsed.push(maxItem);
+      }
+    }
+
+    const totalAfterUseDiscount =
+      totalSale > 0 ? totalOrder - totalSale : totalOrder;
+
+    // cap nhat tong hoa don
+    await this.saveTotalPriceOrder(totalAfterUseDiscount, newOrder.id);
+
+    // update status table
+    await TableService.updateStatusTable(
+      TableService.TABLE_STATUS.AVAILABLE,
+      listIdTable
+    );
+
+    await TableCustomer.destroy({
       where: {
-        id: {
+        table_id: {
           [Op.in]: listIdTable,
         },
+        customer_id: customer.id,
       },
-      include: [
-        {
-          model: FoodMenu,
-          through: {
-            model: Table_FoodMenu,
-            attributes: ["id", "quantity"],
-          },
-          attributes: ["id", "price"],
-        },
-      ],
-      attributes: ["id", "customer_id"],
-      raw: true,
-      nest: true,
     });
-    const listIdTableFoodMenu = listTable.map(
-      (item) => item.FoodMenus?.Table_FoodMenu?.id
-    );
-
-    // tao hoa don theo tung ban
-    let listOrder = [];
-    for (let table of listTables) {
-      const newOrder = await Order.create({
-        table_id: table.id,
-        discount_id: null,
-        total_price: 0,
-      });
-      listOrder.push(newOrder);
-    }
-
-    let listOrderItem = [];
-    for (let table of listTable) {
-      listOrderItem.push({
-        order_id: listOrder.find((order) => order.table_id === table.id)?.id,
-        food_menu_id: table.FoodMenus.id,
-        quantity: table.FoodMenus.Table_FoodMenu.quantity,
-      });
-    }
-
-    await OrderItem.bulkCreate(listOrderItem);
-    await Table.update(
-      {
-        status: "available",
-      },
-      {
-        where: {
-          id: { [Op.in]: listIdTable },
-        },
-      }
-    );
-    await this.calcTotalPrice(listOrder);
-    const data = this.getOrder(listIdTable);
-    TableService.deleteTableFoodMenuById(listIdTableFoodMenu);
-    return data;
-  };
-
-  static getOrder = async (listIdTable) => {
-    const ordersWithDetails = await Order.findAll({
-      where: {
-        table_id: { [Op.in]: listIdTable },
-      },
-      include: [
-        {
-          model: FoodMenu,
-          include: [
-            {
-              model: FoodCategory,
-            },
-            {
-              model: Unit,
-            },
-          ],
-        },
-      ],
-      raw: true,
-      nest: true,
-    });
-
-    const listOrder = ordersWithDetails.map((order) => {
+    TableService.deleteTableFoodMenuById(listIdTable);
+    const listTableResponse = listTable.map((table) => {
       return {
-        orderId: order.id,
-        listFoods: [
-          {
-            id: order.FoodMenus.id,
-            name: order.FoodMenus.name,
-            image_url: order.FoodMenus.image_url,
-            price: order.FoodMenus.price,
-            category: order.FoodMenus?.FoodCategory?.name,
-            unit: order.FoodMenus?.Unit?.name,
-            quantity: order.FoodMenus?.OrderItem?.quantity,
-          },
-        ],
-        total_price: order.total_price,
+        tableId: table.tableId,
+        number: table.number,
+        seat_number: table.seat_number,
+        listFoods: table.listFoods,
       };
     });
-
-    const data = listOrder?.reduce((acc, cur) => {
-      const orderExists = acc?.find((item) => item.orderId === cur.orderId);
-      if (orderExists) {
-        orderExists.listFoods?.push(...cur.listFoods);
-      } else {
-        acc?.push(cur);
-      }
-      return acc;
-    }, []);
-
+    const data = {
+      totalOrder,
+      totalSale,
+      totalAfterUseDiscount,
+      customer,
+      listDiscountUsed,
+      listTableResponse,
+    };
     return data;
   };
 
-  static calcTotalPrice = async (listOrder) => {
-    for (let order of listOrder) {
-      const orderItems = await OrderItem.findAll({
-        where: {
-          order_id: order.id,
-        },
-        include: [
-          {
-            model: FoodMenu,
-            attributes: ["price"],
-          },
-        ],
-      });
-      const total_price = orderItems.reduce((total, item) => {
-        return total + item.quantity * item.FoodMenu.price;
+  static calcTotalPrice = (listTable) => {
+    let totalOrder = 0;
+    for (let table of listTable) {
+      totalOrder += table.listFoods.reduce((total, curr) => {
+        return total + curr.quantity * curr.price;
       }, 0);
-
-      await Order.update(
-        {
-          total_price,
-        },
-        {
-          where: {
-            id: order.id,
-          },
-        }
-      );
     }
+    return totalOrder;
+  };
+
+  static saveOrderDiscount = async (orderId, discountId) => {
+    await OrderDiscount.create({
+      order_id: orderId,
+      discount_id: discountId,
+    });
+  };
+
+  static saveOrderItem = async (listTable, newOrder) => {
+    let listOrderItem = [];
+    for (let table of listTable) {
+      for (let food of table.listFoods) {
+        listOrderItem.push({
+          order_id: newOrder.id,
+          food_menu_id: food.id,
+          quantity: food.quantity,
+        });
+      }
+    }
+
+    for (let orderItem of listOrderItem) {
+      const [record, created] = await OrderItem.findOrCreate({
+        where: {
+          order_id: newOrder.id,
+          food_menu_id: orderItem.food_menu_id,
+        },
+        defaults: {
+          quantity: orderItem.quantity,
+        },
+      });
+      if (!created) {
+        await record.update({
+          quantity: record.quantity + orderItem.quantity,
+        });
+      }
+    }
+  };
+
+  static saveTotalPriceOrder = async (total, orderId) => {
+    await Order.update(
+      {
+        total_price: total,
+      },
+      {
+        where: {
+          id: orderId,
+        },
+      }
+    );
   };
 }
 
