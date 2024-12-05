@@ -44,10 +44,15 @@ class FoodCategoryController {
 
   static getAll = async (req, res) => {
     const { page, limit } = req.query;
-    const response = await FoodCategoryService.getAll({
-      page: parseInt(page) || 1,
-      limit: parseInt(limit) || +process.env.LIMIT_RECORD_FOOD_CATEGORY,
-    });
+    let objData = {};
+    if (page && limit) {
+      objData = {
+        page: parseInt(page),
+        limit: parseInt(limit),
+      };
+    }
+
+    const response = await FoodCategoryService.getAll(objData);
     new SuccessResponse(
       MESSAGES.SUCCESS.GET,
       HTTP_STATUS_CODE.OK,

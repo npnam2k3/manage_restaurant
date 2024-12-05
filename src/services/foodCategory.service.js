@@ -73,10 +73,13 @@ class FoodCategoryService {
   };
 
   static getAll = async ({ page, limit }) => {
-    const queries = {
-      offset: (page - 1) * limit,
-      limit,
-    };
+    let queries = {};
+    if (page && limit) {
+      queries = {
+        offset: (page - 1) * limit,
+        limit,
+      };
+    }
     const { count, rows } = await FoodCategory.findAndCountAll({
       ...queries,
       raw: true,
@@ -92,7 +95,7 @@ class FoodCategoryService {
         total: list.length,
         page,
         limit,
-        totalPage: Math.ceil(count / limit),
+        totalPage: limit ? Math.ceil(count / limit) : 1,
         list,
       };
     }

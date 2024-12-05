@@ -3,7 +3,7 @@
 const FoodMenu = require("../models/food_menu");
 const Unit = require("../models/unit");
 const FoodCategory = require("../models/food_category");
-const { MESSAGES } = require("../core/constant.response");
+const { MESSAGES, HTTP_STATUS_CODE } = require("../core/constant.response");
 const {
   ConflictRequestError,
   OperationFailureError,
@@ -54,8 +54,26 @@ class FoodService {
       }
       throw new NotFoundError(MESSAGES.FOOD.NOT_FOUND);
     }
+    const checkNameExists = await FoodMenu.count({
+      where: {
+        name: dataUpdate.name,
+        id: {
+          [Op.ne]: foodId,
+        },
+      },
+    });
+    if (checkNameExists > 0) {
+      if (fileImage) {
+        deleteFileCloudinary(fileImage.filename);
+      }
+      throw new ConflictRequestError(
+        MESSAGES.ERROR.CONFLICT,
+        HTTP_STATUS_CODE.CONFLICT,
+        { food_name: MESSAGES.FOOD.NAME_EXISTS }
+      );
+    }
     const data = { ...dataUpdate };
-    data.image_url = fileImage?.path || "";
+    if (fileImage) data.image_url = fileImage.path;
 
     const [rowUpdated] = await FoodMenu.update(data, { where: { id: foodId } });
     if (rowUpdated === 0) {
