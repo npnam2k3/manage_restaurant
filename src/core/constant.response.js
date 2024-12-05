@@ -92,6 +92,7 @@ const MESSAGES = {
   },
   FOOD: {
     EXISTS: "Food already exists",
+    NAME_EXISTS: "Name of food already exists",
     NOT_FOUND: "Food not found",
   },
   UNIT: {
