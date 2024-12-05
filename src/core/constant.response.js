@@ -84,6 +84,11 @@ const MESSAGES = {
     ORDER_FOOD_FAIL: "Order food failure",
     ORDER_FOOD_SUCCESS: "Order food successfully",
     UPDATE_ORDER_FOOD_SUCCESS: "Update order food successfully",
+    TIME_RESERVED: "A reserved time is required for remote bookings.",
+    TABLE_OCCUPIED: "The table is currently occupied.",
+    TIME_RESERVED_MINIMUM:
+      "The reserved time must be at least 5 hours apart from the previous reservation.",
+    CANCEL_TABLE_SUCCESS: "Table cancellation was successful.",
   },
   FOOD: {
     EXISTS: "Food already exists",

@@ -3,36 +3,20 @@
 const { HTTP_STATUS_CODE, MESSAGES } = require("../core/constant.response");
 const { MissingInputError } = require("../core/error.response");
 
-const Table = require("../models/table");
-const FoodMenu = require("../models/food_menu");
-const FoodCategory = require("../models/food_category");
-const Unit = require("../models/unit");
 const OrderItem = require("../models/order_item");
 const Order = require("../models/order");
 
-const { Op } = require("sequelize");
 const TableService = require("../services/table.service");
 const DiscountService = require("../services/discount.service");
-
-const Table_FoodMenu = require("../models/table_foodMenu");
-const Customer = require("../models/customer");
-const TableCustomer = require("../models/table_customer");
-const CustomerDiscount = require("../models/customer_discount");
 const OrderDiscount = require("../models/order_discount");
 
 class OrderService {
   static createOrder = async ({ listTables }) => {
-    let listIdTable;
-    try {
-      listIdTable = await TableService.validateListTable(
-        listTables,
-        TableService.TABLE_STATUS.OCCUPIED
-      );
-    } catch (error) {
-      throw error;
-    }
+    const listIdTable = listTables.map((item) => item.id);
 
-    const listTable = await TableService.getListFoodByTable({ listTables });
+    const listTable = await TableService.getListFoodByTableForPayment({
+      listTables,
+    });
     // console.log("check list table::", listTable);
 
     const customer = {
@@ -40,6 +24,7 @@ class OrderService {
       customer_name: listTable[0].customer_name,
       phone_number: listTable[0].phone_number,
     };
+
     // tao hoa don
     const newOrder = await Order.create({
       total_price: 0,
@@ -99,20 +84,9 @@ class OrderService {
     // cap nhat tong hoa don
     await this.saveTotalPriceOrder(totalAfterUseDiscount, newOrder.id);
 
-    // update status table
-    await TableService.updateStatusTable(
-      TableService.TABLE_STATUS.AVAILABLE,
-      listIdTable
-    );
+    // delete table in table_customer
+    await TableService.deleteTableCustomer(listIdTable, customer.id);
 
-    await TableCustomer.destroy({
-      where: {
-        table_id: {
-          [Op.in]: listIdTable,
-        },
-        customer_id: customer.id,
-      },
-    });
     TableService.deleteTableFoodMenuById(listIdTable);
     const listTableResponse = listTable.map((table) => {
       return {

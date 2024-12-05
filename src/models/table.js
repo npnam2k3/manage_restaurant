@@ -22,10 +22,6 @@ class Table extends Model {
 Table.init(
   {
     number: DataTypes.INTEGER,
-    status: DataTypes.ENUM("available", "reserved", "occupied"),
-    // reserved: da dat truoc
-    // available: con trong
-    // occupied: dang co khach ngoi
     seat_number: DataTypes.INTEGER,
   },
   {

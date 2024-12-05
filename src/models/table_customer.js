@@ -2,31 +2,26 @@
 const { Model, DataTypes } = require("sequelize");
 const instanceMySQL = require("../dbs/init.mysqldb");
 class TableCustomer extends Model {
-  /**
-   * Helper method for defining associations.
-   * This method is not a part of Sequelize lifecycle.
-   * The `models/index` file will call this method automatically.
-   */
   static associate(models) {
-    // define association here
+    TableCustomer.belongsTo(models.Customer, { foreignKey: "customer_id" });
+    TableCustomer.belongsTo(models.Table, { foreignKey: "table_id" });
   }
 }
 TableCustomer.init(
   {
     table_id: {
       type: DataTypes.INTEGER,
-      references: {
-        model: "Table",
-        key: "id",
-      },
     },
     customer_id: {
       type: DataTypes.INTEGER,
-      references: {
-        model: "Customer",
-        key: "id",
-      },
     },
+    time_reserved: {
+      type: DataTypes.DATE,
+    },
+    status: DataTypes.ENUM("available", "reserved", "occupied"),
+    // reserved: da dat truoc
+    // available: con trong
+    // occupied: dang co khach ngoi
   },
   {
     sequelize: instanceMySQL,

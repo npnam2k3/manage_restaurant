@@ -39,6 +39,26 @@ const tableBookingSchema = Joi.object({
         "Phone number must be a valid Vietnamese phone number",
       "any.required": "Phone number is required",
     }),
+  type_booking: Joi.string().valid("direct", "remote").required().messages({
+    "any.only": "Type booking must be either 'direct' or 'remote'",
+    "any.required": "Type booking is required",
+  }),
+  time_reserved: Joi.date()
+    .custom((value, helpers) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Đặt giờ, phút, giây, mili giây về 0
+      if (value < today) {
+        return helpers.error("date.greater", {
+          message:
+            "Time reserved must be greater than or equal to the current date",
+        });
+      }
+      return value; // Trả về giá trị hợp lệ
+    })
+    .messages({
+      "date.base": "Time reserved must be a valid date and time",
+      "any.required": "Time reserved is required",
+    }),
 });
 
 module.exports = tableBookingSchema;
