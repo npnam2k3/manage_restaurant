@@ -20,12 +20,11 @@ class TableController {
   };
 
   static getAll = async (req, res) => {
-    const { page, limit, seat_number, status } = req.query;
+    const { page, limit, seat_number } = req.query;
     const response = await TableService.getAll({
       page: parseInt(page) || 1,
       limit: parseInt(limit) || +process.env.LIMIT_RECORD_TABLE,
       seat_number,
-      status: status?.toLowerCase(),
     });
     new SuccessResponse(
       MESSAGES.SUCCESS.GET,
@@ -63,6 +62,26 @@ class TableController {
       req.validatedData
     );
     new SuccessResponse(response).send(res);
+  };
+
+  static cancelTable = async (req, res) => {
+    const response = await TableService.cancelTable(req.validatedData);
+    new SuccessResponse(response).send(res);
+  };
+
+  static customerReceiveTable = async (req, res) => {
+    const response = await TableService.customerReceiveTable(req.validatedData);
+    new SuccessResponse(response).send(res);
+  };
+
+  static findTableByStatus = async (req, res) => {
+    const { status } = req.query;
+    const response = await TableService.findTableByStatus(status);
+    new SuccessResponse(
+      MESSAGES.SUCCESS.GET,
+      HTTP_STATUS_CODE.OK,
+      response
+    ).send(res);
   };
 }
 
