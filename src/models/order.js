@@ -22,8 +22,6 @@ class Order extends Model {
 }
 Order.init(
   {
-    table_id: DataTypes.INTEGER,
-    discount_id: DataTypes.INTEGER,
     total_price: DataTypes.BIGINT,
     customer_id: DataTypes.INTEGER,
   },

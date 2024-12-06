@@ -121,6 +121,11 @@ const MESSAGES = {
       "The discount with this value for loyal customers already exists",
     VALUE_DISCOUNT_NORMAL_EXISTS: "The discount with this value already exists",
   },
+
+  ORDER: {
+    MISSING_ID: "Order id is required",
+    NOT_FOUND: "Order not found",
+  },
 };
 // Response Types
 const RESPONSE_TYPE = {

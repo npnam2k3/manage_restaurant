@@ -17,7 +17,7 @@ class Discount extends Model {
       through: "OrderDiscount",
       foreignKey: "discount_id",
     });
-    Discount.hasMany(models.Order, { foreignKey: "discount_id" });
+    // Discount.hasMany(models.Order, { foreignKey: "discount_id" });
   }
 }
 Discount.init(

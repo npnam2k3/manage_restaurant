@@ -32,9 +32,11 @@ class BadRequestError extends ErrorResponse {
 class NotFoundError extends ErrorResponse {
   constructor(
     message = MESSAGES.ERROR.NOT_FOUND,
-    status = HTTP_STATUS_CODE.NOT_FOUND
+    status = HTTP_STATUS_CODE.NOT_FOUND,
+    details = {}
   ) {
     super(message, status);
+    this.details = details;
   }
 }
 
