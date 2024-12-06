@@ -9,6 +9,7 @@ import unitRouter from "./units/index.js";
 import foodCategoriesRouter from "./foodCategories/index.js";
 import discountRouter from "./discount/index.js";
 import orderRouter from "./orders/index.js";
+import statisticRouter from "./statistics/index.js";
 
 const router = express.Router();
 const API_V1 = "/api/v1";
@@ -22,5 +23,6 @@ router.use(`${API_V1}/units`, unitRouter);
 router.use(`${API_V1}/foodCategories`, foodCategoriesRouter);
 router.use(`${API_V1}/discounts`, discountRouter);
 router.use(`${API_V1}/orders`, orderRouter);
+router.use(`${API_V1}/statistics`, statisticRouter);
 
 export default router;

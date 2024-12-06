@@ -1,14 +1,23 @@
 "use strict";
 
 const { HTTP_STATUS_CODE, MESSAGES } = require("../core/constant.response");
-const { MissingInputError } = require("../core/error.response");
+const { MissingInputError, NotFoundError } = require("../core/error.response");
 
 const OrderItem = require("../models/order_item");
+const Customer = require("../models/customer");
 const Order = require("../models/order");
+const FoodMenu = require("../models/food_menu");
+const FoodCategory = require("../models/food_category");
+const Unit = require("../models/unit");
 
 const TableService = require("../services/table.service");
 const DiscountService = require("../services/discount.service");
 const OrderDiscount = require("../models/order_discount");
+const { Op, where, fn, col } = require("sequelize");
+
+const { getInfoData } = require("../utils/index");
+const { formatDate, convertToDate } = require("../utils/formatDate");
+const Discount = require("../models/discount");
 
 class OrderService {
   static createOrder = async ({ listTables }) => {
@@ -165,6 +174,181 @@ class OrderService {
         },
       }
     );
+  };
+
+  static getAllOrder = async ({
+    page,
+    limit,
+    sortBy,
+    orderBy,
+    customerName,
+    dateFind,
+  }) => {
+    const queries = {
+      offset: (page - 1) * limit,
+      limit,
+    };
+    if (sortBy) {
+      queries.order = [[sortBy, orderBy]];
+    }
+    if (dateFind) {
+      const dateFormat = convertToDate(dateFind);
+      queries.where = {
+        [Op.and]: [
+          where(fn("DATE", col("Order.createdAt")), {
+            [Op.eq]: fn("DATE", dateFormat),
+          }),
+        ],
+      };
+    }
+    let subQueries = {};
+    if (customerName) {
+      subQueries.where = {
+        full_name: {
+          [Op.substring]: customerName,
+        },
+      };
+    }
+    const { count, rows } = await Order.findAndCountAll({
+      ...queries,
+      include: [
+        {
+          model: Customer,
+          where: {
+            ...subQueries.where,
+          },
+        },
+      ],
+      raw: true,
+      nest: true,
+    });
+    let listOrders;
+    if (count > 0) {
+      listOrders = rows.map((order) => {
+        const data = getInfoData({
+          fields: ["id", "total_price"],
+          object: order,
+        });
+        data.createdAt = formatDate(order.createdAt);
+        data.customer = {
+          full_name: order.Customer.full_name,
+          phone_number: order.Customer.phone_number,
+        };
+        return data;
+      });
+      return {
+        total: listOrders.length,
+        page,
+        limit,
+        sortBy,
+        orderBy,
+        totalPage: Math.ceil(count / limit),
+        listOrders,
+      };
+    }
+
+    return {
+      total: 0,
+      page,
+      limit,
+      sortBy,
+      orderBy,
+      totalPage: 0,
+      listOrders: [],
+    };
+  };
+
+  static getById = async (orderId) => {
+    if (!orderId)
+      throw new MissingInputError(
+        MESSAGES.ERROR.INVALID_INPUT,
+        HTTP_STATUS_CODE.BAD_REQUEST,
+        {
+          orderId: MESSAGES.ORDER.MISSING_ID,
+        }
+      );
+    const order = await Order.findByPk(orderId, {
+      include: [
+        {
+          model: Customer,
+        },
+        {
+          model: FoodMenu,
+          through: {
+            attributes: ["quantity"],
+          },
+          include: [
+            {
+              model: FoodCategory,
+            },
+            {
+              model: Unit,
+            },
+          ],
+        },
+        {
+          model: Discount,
+          through: {
+            attributes: [],
+          },
+        },
+      ],
+      raw: false,
+      nest: true,
+    });
+
+    let response = {};
+    if (!order) {
+      throw new NotFoundError(
+        MESSAGES.ERROR.NOT_FOUND,
+        HTTP_STATUS_CODE.NOT_FOUND,
+        {
+          order: MESSAGES.ORDER.NOT_FOUND,
+        }
+      );
+    }
+    const listFoods = order.FoodMenus.map((item) => {
+      const food = item.toJSON();
+      return {
+        id: food.id,
+        name: food.name,
+        image_url: food.image_url,
+        description: food.description,
+        category: food.FoodCategory.name,
+        unit: {
+          name: food.Unit.name,
+          description: food.Unit.description || null,
+        },
+        price: food.price,
+        quantity: food.OrderItem.quantity,
+        subTotal: food.price * food.OrderItem.quantity,
+      };
+    });
+    let listDiscounts;
+    if (order.Discounts.length > 0) {
+      listDiscounts = order.Discounts.map((discount) => {
+        const discountObj = discount.toJSON();
+        return {
+          code: discountObj.code,
+          description: discountObj.description,
+          discount_amount: discountObj.discount_amount,
+          discount_type: discountObj.discount_type,
+        };
+      });
+    }
+    const customerObj = order.Customer.toJSON();
+    response = {
+      id: order.id,
+      total_price: order.total_price,
+      createdAt: formatDate(order.createdAt),
+      customer: {
+        full_name: customerObj.full_name,
+        phone_number: customerObj.phone_number,
+      },
+      listFoods,
+      listDiscounts,
+    };
+    return response;
   };
 }
 

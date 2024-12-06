@@ -21,5 +21,15 @@ router.post(
   validateMiddleware(listIdTableSchema),
   asyncHandle(OrderController.createOrder)
 );
+router.get(
+  "/",
+  checkPermissions(PERMISSIONS.ORDER.READ),
+  asyncHandle(OrderController.getAll)
+);
+router.get(
+  "/:orderId",
+  checkPermissions(PERMISSIONS.ORDER.READ),
+  asyncHandle(OrderController.getById)
+);
 
 export default router;
