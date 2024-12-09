@@ -9,13 +9,22 @@ const sendMail = async ({ email, html }) => {
       user: process.env.EMAIL_NAME,
       pass: process.env.EMAIL_APP_PASSWORD,
     },
+    logger: true,
   });
 
   // async..await is not allowed in global scope, must use a wrapper
 
   // send mail with defined transport object
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error("SMTP Verification Failed:", error);
+    } else {
+      console.log("SMTP Server is ready:", success);
+    }
+  });
+
   const info = await transporter.sendMail({
-    from: '"Restaurant to you" <no-reply@manage-restaurant.com>', // sender address
+    from: `"Restaurant to you" <${process.env.EMAIL_NAME}>`, // sender address
     to: email, // list of receivers
     subject: "Forgot password", // Subject line
     html, // html body
