@@ -286,6 +286,7 @@ class UserService {
       await sendMail({ email, html });
       return MESSAGES.SUCCESS.SEND_MAIL;
     } catch (error) {
+      // console.log("check error::", error);
       throw new OperationFailureError(MESSAGES.ERROR.SEND_MAIL);
     }
   };
