@@ -51,10 +51,7 @@ class FoodCategoryService {
     return MESSAGES.SUCCESS.UPDATE;
   };
 
-  static getById = async (
-    { page, limit, sortBy, orderBy, keyword },
-    foodCategoryId
-  ) => {
+  static getById = async (foodCategoryId) => {
     const foodCategoryExists = await FoodCategory.findByPk(foodCategoryId);
     if (!foodCategoryExists)
       throw new NotFoundError(MESSAGES.FOOD_CATEGORY.NOT_FOUND);
@@ -62,10 +59,7 @@ class FoodCategoryService {
       fields: ["id", "name"],
       object: foodCategoryExists,
     });
-    const foodData = await FoodService.getAllByCategory(
-      { page, limit, sortBy, orderBy, keyword },
-      foodCategoryId
-    );
+    const foodData = await FoodService.getAllByCategory(foodCategoryId);
     return {
       categoryData,
       foodData,

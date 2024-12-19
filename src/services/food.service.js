@@ -170,28 +170,11 @@ class FoodService {
     };
   };
 
-  static getAllByCategory = async (
-    { page, limit, sortBy, orderBy, keyword },
-    foodCategoryId
-  ) => {
-    const queries = {
-      offset: (page - 1) * limit,
-      limit,
-    };
-    if (sortBy) {
-      queries.order = [[sortBy, orderBy]];
-    }
-    if (keyword) {
-      queries.where = {
-        name: { [Op.substring]: keyword },
-      };
-    }
-    queries.where = {
-      ...queries.where,
-      category_id: foodCategoryId,
-    };
+  static getAllByCategory = async (foodCategoryId) => {
     const { count, rows } = await FoodMenu.findAndCountAll({
-      ...queries,
+      where: {
+        category_id: foodCategoryId,
+      },
       include: [
         {
           model: Unit,
@@ -218,18 +201,10 @@ class FoodService {
         return data;
       });
       return {
-        total: listFoods.length,
-        page,
-        limit,
-        totalPage: Math.ceil(count / limit),
         listFoods,
       };
     }
     return {
-      total: 0,
-      page,
-      limit,
-      totalPages: 0,
       listFoods: [],
     };
   };
