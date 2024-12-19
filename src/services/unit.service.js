@@ -54,10 +54,13 @@ class UnitService {
   };
 
   static getAll = async ({ page, limit }) => {
-    const queries = {
-      offset: (page - 1) * limit,
-      limit,
-    };
+    let queries = {};
+    if (page && limit) {
+      queries = {
+        offset: (page - 1) * limit,
+        limit,
+      };
+    }
     const { count, rows } = await Unit.findAndCountAll({
       ...queries,
       raw: true,
@@ -73,7 +76,7 @@ class UnitService {
         total: listUnits.length,
         page,
         limit,
-        totalPage: Math.ceil(count / limit),
+        totalPage: limit ? Math.ceil(count / limit) : 1,
         listUnits,
       };
     }

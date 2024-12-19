@@ -24,17 +24,7 @@ class FoodCategoryController {
 
   static getById = async (req, res) => {
     const foodCategoryId = req.params.foodCategoryId;
-    const { page, limit, sortBy, orderBy, keyword } = req.query;
-    const response = await FoodCategoryService.getById(
-      {
-        page: parseInt(page) || 1,
-        limit: parseInt(limit) || +process.env.LIMIT_RECORD_FOOD,
-        sortBy,
-        orderBy: orderBy?.toUpperCase() === "DESC" ? "DESC" : "ASC",
-        keyword,
-      },
-      foodCategoryId
-    );
+    const response = await FoodCategoryService.getById(foodCategoryId);
     new SuccessResponse(
       MESSAGES.SUCCESS.GET,
       HTTP_STATUS_CODE.OK,
