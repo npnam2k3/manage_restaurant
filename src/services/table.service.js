@@ -276,7 +276,13 @@ class TableService {
         {
           model: Customer,
           through: {
-            attributes: ["table_id", "customer_id", "time_reserved", "status"],
+            attributes: [
+              "id",
+              "table_id",
+              "customer_id",
+              "time_reserved",
+              "status",
+            ],
             where: {
               deletedAt: null,
             },
@@ -300,6 +306,7 @@ class TableService {
           listCustomers: curr.Customers.id
             ? [
                 {
+                  table_customer_id: curr.Customers.Table_Customer.id,
                   customerId: curr.Customers.id,
                   full_name: curr.Customers.full_name,
                   phone_number: curr.Customers.phone_number,
@@ -314,6 +321,7 @@ class TableService {
         const tableExists = acc.find((item) => item.id === curr.id);
         if (tableExists) {
           tableExists.listCustomers.push({
+            table_customer_id: curr.Customers.Table_Customer.id,
             customerId: curr.Customers.id,
             full_name: curr.Customers.full_name,
             phone_number: curr.Customers.phone_number,
@@ -594,54 +602,46 @@ class TableService {
     });
   };
 
-  static cancelTable = async ({ listTables, customer_id }) => {
-    const listIdTable = listTables.map((item) => item.id);
-    await this.validateListTableForCancelAndReceive(listIdTable, customer_id);
+  static cancelTable = async ({ listTableCustomerId }) => {
+    const listIdTable = listTableCustomerId.map((item) => item.id);
+    await this.validateListTableForCancelAndReceive(listIdTable);
     await TableCustomer.destroy({
       where: {
-        customer_id,
-        table_id: {
+        id: {
           [Op.in]: listIdTable,
         },
-        status: this.TABLE_STATUS.RESERVED,
       },
     });
     return MESSAGES.TABLE.CANCEL_TABLE_SUCCESS;
   };
-  static customerReceiveTable = async ({ listTables, customer_id }) => {
-    const listIdTable = listTables.map((item) => item.id);
-    await this.validateListTableForCancelAndReceive(listIdTable, customer_id);
+  static customerReceiveTable = async ({ listTableCustomerId }) => {
+    const listIdTable = listTableCustomerId.map((item) => item.id);
+    await this.validateListTableForCancelAndReceive(listIdTable);
     await TableCustomer.update(
       {
         status: this.TABLE_STATUS.OCCUPIED,
       },
       {
         where: {
-          table_id: {
+          id: {
             [Op.in]: listIdTable,
           },
-          customer_id,
-          status: this.TABLE_STATUS.RESERVED,
         },
       }
     );
     return MESSAGES.SUCCESS.UPDATE;
   };
 
-  static validateListTableForCancelAndReceive = async (
-    listIdTable,
-    customer_id
-  ) => {
+  static validateListTableForCancelAndReceive = async (listTableCustomerId) => {
     const countIdTable = await TableCustomer.count({
       where: {
-        table_id: {
-          [Op.in]: listIdTable,
+        id: {
+          [Op.in]: listTableCustomerId,
         },
-        customer_id,
         status: this.TABLE_STATUS.RESERVED,
       },
     });
-    if (countIdTable < listIdTable.length) {
+    if (countIdTable < listTableCustomerId.length) {
       throw new MissingInputError(
         MESSAGES.ERROR.INVALID_INPUT,
         HTTP_STATUS_CODE.UNPROCESSABLE_ENTITY,
