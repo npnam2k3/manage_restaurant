@@ -113,7 +113,7 @@ class CustomerService {
         return data;
       });
       return {
-        total: listCustomer.length,
+        total: count,
         page,
         limit,
         totalPage: Math.ceil(count / limit),

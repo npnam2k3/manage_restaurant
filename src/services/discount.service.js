@@ -254,7 +254,7 @@ class DiscountService {
         return data;
       });
       return {
-        total: listDiscounts.length,
+        total: count,
         page,
         limit,
         totalPage: Math.ceil(count / limit),

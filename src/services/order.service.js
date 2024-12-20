@@ -237,7 +237,7 @@ class OrderService {
         return data;
       });
       return {
-        total: listOrders.length,
+        total: count,
         page,
         limit,
         sortBy,
