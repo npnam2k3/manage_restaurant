@@ -86,7 +86,7 @@ class FoodCategoryService {
         })
       );
       return {
-        total: list.length,
+        total: count,
         page,
         limit,
         totalPage: limit ? Math.ceil(count / limit) : 1,

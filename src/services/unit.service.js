@@ -73,7 +73,7 @@ class UnitService {
         })
       );
       return {
-        total: listUnits.length,
+        total: count,
         page,
         limit,
         totalPage: limit ? Math.ceil(count / limit) : 1,

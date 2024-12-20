@@ -154,7 +154,7 @@ class FoodService {
         return data;
       });
       return {
-        total: listFoods.length,
+        total: count,
         page,
         limit,
         totalPage: Math.ceil(count / limit),
