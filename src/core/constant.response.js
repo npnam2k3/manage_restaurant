@@ -89,6 +89,7 @@ const MESSAGES = {
     TIME_RESERVED_MINIMUM:
       "The reserved time must be at least 5 hours apart from the previous reservation.",
     CANCEL_TABLE_SUCCESS: "Table cancellation was successful.",
+    TIME_RESERVED_INVALID: "The time reserved must be greater than now.",
   },
   FOOD: {
     EXISTS: "Food already exists",
