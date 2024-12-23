@@ -83,6 +83,24 @@ class TableController {
       response
     ).send(res);
   };
+
+  static findTableAvailable = async (req, res) => {
+    const response = await TableService.findTableAvailable(req.validatedData);
+    new SuccessResponse(
+      MESSAGES.SUCCESS.GET,
+      HTTP_STATUS_CODE.OK,
+      response
+    ).send(res);
+  };
+
+  static findTableReservedOrOccupied = async (req, res) => {
+    const response = await TableService.findTableReservedOrOccupied();
+    new SuccessResponse(
+      MESSAGES.SUCCESS.GET,
+      HTTP_STATUS_CODE.OK,
+      response
+    ).send(res);
+  };
 }
 
 module.exports = TableController;

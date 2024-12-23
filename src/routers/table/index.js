@@ -10,6 +10,7 @@ const orderFoodSchema = require("../../validations/orderFoodSchema");
 const listIdTableSchema = require("../../validations/listIdTableSchema");
 const listFoodTableSchema = require("../../validations/updateListFoodByTableSchema");
 const cancelTableSchema = require("../../validations/cancelTableSchema");
+const timeReservedSchema = require("../../validations/timeReservedSchema");
 const checkPermissions = require("../../middlewares/check_permission.middleware");
 const { PERMISSIONS } = require("../../core/constant.permission");
 const {
@@ -78,6 +79,19 @@ router.get(
   "/findTableByStatus",
   checkPermissions(PERMISSIONS.TABLE.READ),
   asyncHandle(TableController.findTableByStatus)
+);
+
+router.post(
+  "/findTableAvailable",
+  checkPermissions(PERMISSIONS.TABLE.READ),
+  validateMiddleware(timeReservedSchema),
+  asyncHandle(TableController.findTableAvailable)
+);
+
+router.get(
+  "/findTableReservedOrOccupied",
+  checkPermissions(PERMISSIONS.TABLE.READ),
+  asyncHandle(TableController.findTableReservedOrOccupied)
 );
 
 export default router;

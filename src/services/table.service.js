@@ -13,11 +13,18 @@ const {
   OperationFailureError,
   MissingInputError,
   NotFoundError,
+  BadRequestError,
 } = require("../core/error.response");
 const { getInfoData } = require("../utils/index");
-const { Op, Sequelize } = require("sequelize");
-const { formatDate, formatTime } = require("../utils/formatDate");
+const { Op, Sequelize, QueryTypes } = require("sequelize");
+const {
+  formatDate,
+  formatTime,
+  convertToDate,
+} = require("../utils/formatDate");
 const moment = require("moment");
+const sequelize = require("../dbs/init.mysqldb");
+const { number } = require("joi");
 
 class TableService {
   static TABLE_STATUS = {
@@ -710,6 +717,101 @@ class TableService {
       totalRecord: listCustomize.length,
       listCustomize,
     };
+  };
+
+  static findTableAvailable = async ({ time_reserved }) => {
+    const now = formatDate(new Date());
+    if (formatDate(time_reserved) < now) {
+      throw new BadRequestError(MESSAGES.TABLE.TIME_RESERVED_INVALID);
+    }
+
+    // tim các bàn còn trống chưa được đặt trc
+    const query = `SELECT t.id, t.number, t.seat_number
+      FROM tables t
+      LEFT JOIN table_customer tc ON t.id = tc.table_id
+      WHERE tc.id IS NULL;`;
+    const listTable = await sequelize.query(query, {
+      type: Sequelize.QueryTypes.SELECT,
+    });
+
+    const beforeTime = moment(time_reserved)
+      .subtract(this.MIN_DURATION, "hours")
+      .format("YYYY-MM-DD HH:mm:ss");
+    const afterTime = moment(time_reserved)
+      .add(this.MIN_DURATION, "hours")
+      .format("YYYY-MM-DD HH:mm:ss");
+    let queries = {};
+
+    if (now > beforeTime) {
+      queries.where = {
+        time_reserved: { [Op.gt]: afterTime },
+      };
+    } else {
+      queries.where = {
+        [Op.or]: [
+          {
+            time_reserved: {
+              [Op.and]: [{ [Op.lt]: beforeTime }, { [Op.gt]: now }],
+            },
+          },
+          { time_reserved: { [Op.gt]: afterTime } },
+        ],
+      };
+    }
+    // tìm các bàn đã có trạng thái đặt trước hoặc đang ngồi nhưng vẫn có thể đặt
+    const listTableAvailable = await TableCustomer.findAll({
+      ...queries,
+      raw: true,
+    });
+
+    const listIdTable = listTableAvailable.map((item) => item.table_id);
+    const infoTable = await Table.findAll({
+      where: {
+        id: { [Op.in]: listIdTable },
+      },
+      raw: true,
+    });
+
+    let result = listTableAvailable.map((table) => {
+      const matchingTable = infoTable.find(
+        (item) => item.id === table.table_id
+      );
+      return {
+        id: matchingTable.id,
+        number: matchingTable.number,
+        seat_number: matchingTable.seat_number,
+        time_reserved: formatDate(table.time_reserved),
+        status: table.status,
+      };
+    });
+
+    let data = listTable;
+    if (listTableAvailable.length > 0) {
+      data = [...data, ...result];
+    }
+
+    return data;
+  };
+
+  // tìm các bàn đang ngồi hoặc đã được đặt trước trong thời gian hiện tại
+  static findTableReservedOrOccupied = async () => {
+    const currentDate = convertToDate(new Date());
+    const currentTime = formatDate(new Date());
+
+    const query = `SELECT t.id, t.number, t.seat_number, tc.time_reserved, tc.status
+        FROM tables t
+        LEFT JOIN table_customer tc ON t.id = tc.table_id
+        WHERE tc.time_reserved >= ?
+        AND DATE(tc.time_reserved) = ?;`;
+    const listTable = await sequelize.query(query, {
+      replacements: [currentTime, currentDate],
+      type: QueryTypes.SELECT,
+      raw: true,
+    });
+    const data = listTable.map((table) => {
+      return { ...table, time_reserved: formatDate(table.time_reserved) };
+    });
+    return data;
   };
 }
 
