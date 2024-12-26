@@ -49,7 +49,9 @@ class TableController {
   };
 
   static getListFoodByTable = async (req, res) => {
-    const response = await TableService.getListFoodByTable(req.validatedData);
+    const response = await TableService.getListFoodByTableForPayment(
+      req.validatedData
+    );
     new SuccessResponse(
       MESSAGES.SUCCESS.GET,
       HTTP_STATUS_CODE.OK,
