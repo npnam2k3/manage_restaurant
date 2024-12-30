@@ -11,20 +11,27 @@ class StatisticService {
   static getRevenueByTimeRange = async (startDate, endDate) => {
     const formatStartDate = convertToDate(startDate);
     const formatEndDate = convertToDate(endDate || new Date());
-    const revenue = await Order.sum("total_price", {
+
+    const revenueByDay = await Order.findAll({
+      attributes: [
+        [fn("DATE", col("createdAt")), "date"], // Lấy ngày từ createdAt
+        [fn("SUM", col("total_price")), "total_revenue"], // Tính tổng doanh thu
+      ],
       where: {
         [Op.and]: [
-          where(fn("DATE", col("createdAt")), { [Op.gte]: formatStartDate }),
-          where(fn("DATE", col("createdAt")), { [Op.lte]: formatEndDate }),
+          where(fn("DATE", col("createdAt")), Op.gte, formatStartDate),
+          where(fn("DATE", col("createdAt")), Op.lte, formatEndDate),
         ],
       },
+      group: [fn("DATE", col("createdAt"))], // Nhóm theo ngày
+      order: [[fn("DATE", col("createdAt")), "ASC"]], // Sắp xếp theo ngày
       raw: true,
     });
 
     return {
       startDate: formatStartDate,
       endDate: formatEndDate,
-      revenue: revenue || 0,
+      revenue: revenueByDay,
     };
   };
 
